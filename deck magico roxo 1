@@ -2,17 +2,17 @@
 #<Terreno> A grande biblioteca (classe: magico) (efeito: quando colocado em campo aumenta em 1000 o dano de ataque de cartas do tipo magico )
 #<itens> Tomo da sabedoria (classe: magico) (efeito: Adiciona a classe magico a uma carta a escolha)
 
-#<cartas de efeito 1> Anular (classe: magico) (efeito: quando vc prever uma carta de efeito do baralho adversario vc pode jogar ela no lixo)
-#<cartas de efeito 2> Assembleia (classe: magico) (efeito: 'counter' quando for atacado pode usar o efeito dessa carta para ganhar +3000 de defesa 'apenas no turno do ataque')
-#<cartas de efeito 3> Graduação (classe: magico) (efeito: quando entregue a um estudante de magia aumenta o seu dano em +2000)
-#<cartas de efeito 4> Canalizar (classe: magico) (efeito: aumenta o dano em + 6000 porem o personagem deve ser colocado na pilha de descarte )
+#<cartas de efeito 1> Anular (classe: magico) (custo: 4 energia) (efeito: quando vc prever uma carta de efeito do baralho adversario vc pode jogar ela no lixo)
+#<cartas de efeito 2> Assembleia (classe: magico) (custo:2 energia) (efeito: 'counter' quando for atacado pode usar o efeito dessa carta para ganhar +3000 de defesa 'apenas no turno do ataque')
+#<cartas de efeito 3> Graduação (classe: magico) (custo: 2 energia) (efeito: quando entregue a um estudante de magia aumenta o seu dano em +2000)
+#<cartas de efeito 4> Canalizar (classe: magico) (custo: 6 energia) (efeito: aumenta o dano em + 6000 porem o personagem deve ser colocado na pilha de descarte )
 
-
-#<cartas especiais 1> Rodote (classe: magico) (estilo de ataque: especial) (custo: 4 energia) (poder 4000) (defesa:5000) (skill: permite com que vc preveja as proximas 3 primeiras cartas do baralho inimigo)
+#<cartas especiais 1> Rodote (classe: magico) (estilo de ataque: especial) (custo: 3 energia) (poder 4000) (defesa:5000) (skill: permite com que vc preveja as proximas 3 primeiras cartas do baralho inimigo)
 #<cartas especiais 2> Mabo (classe: magico) (estilo de ataque: especial) (custo: 8 energia) (poder 7000) (defesa:3000) (skill: quando em campo anula todos os efeitos de cartas direcionado ao lider)
-#<cartas especiais 3> drogoon (classe: magico) (estilo de ataque: fisico) (custo: 5 energia) (poder 1000) (defesa 9000)
-#<cartas especiais 4> Bomia (classe: magico) (esilo de ataque: especial) (custo: 6 energia) (poder 2000) (defesa 2000) (skill: quando vc compra uma carta com ele em campo você pode transformala em uma carta de vida)
+#<cartas especiais 3> drogoon (classe: magico) (estilo de ataque: fisico) (custo: 6 energia) (poder 6000) (defesa 6000) (caracteristica: defensor) 
+#<cartas especiais 4> Bomia (classe: magico) (esilo de ataque: especial) (custo: 4 energia) (poder 2000) (defesa 2000) (skill: quando vc compra uma carta com ele em campo você pode transformala em uma carta de vida)
 
-#<cartas comum 1> estudante de magia (classe: magico) (estilo de ataque: especial) (custo: 2 energia) (poder 3000) (defesa 2000) (efeito: com 2 cartas energia nele você pode comprar um tomo da sabedoria)
-#<cartas comum 2> secrataria (classe: especialista) (estilo de ataque fisico) (custo: 2 energia) (poder 2000) (defesa: 3000) (efeito: restaura uma carta energia)
-#<cartas comum 3> 
+#<cartas comum 1> estudante de magia (classe: magico) (estilo de ataque: especial) (custo: 2 energia) (poder 3000) (defesa 2000) (efeito: com 2 cartas energia nele você pode comprar um tomo da sabedoria) (counter: 1000)
+#<cartas comum 2> helbo (classe: especialista) (estilo de ataque fisico) (custo: 2 energia) (poder 2000) (defesa: 3000) (efeito: restaura uma carta energia) (caracteristica: defensor) (counter: 1000)
+#<cartas comum 3> Marbo (classe: lutador) (estilo de ataque: fisico) (custo: 3 energia) (poder 4000) (defesa: 2000) (efeito: pode atacar no mesmo turno que for colocada em campo) (caracteristica: apressado) (counter: 1000)
+#<cartas comum 4> Professor de magia (classe: magico) (estilo de ataque: especial) (custo: 3 energia) (poder: 3000) (defesa: 3000) (counter: 2000)
