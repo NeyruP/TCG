@@ -234,97 +234,13 @@ energies = [
 ]
 
 
-# ====================== NOVAS CARTAS (28) ======================
-
-# Novos Efeitos (2 de cada)
-
-arcane_echo = TCGCard(
-    name="Eco Arcano",
-    card_type="Efeito",
-    attack=0,
-    defense=0,
-    cost=0,
-    ability="Quando uma carta sua for pro descarte vc pode comprar 1 carta"
-)
-
-seal_of_knowledge = TCGCard(
-    name="Selo do Saber",
-    card_type="Efeito",
-    attack=0,
-    defense=0,
-    cost=0,
-    ability="Escolha uma carta do oponente em campo e vire ela pra baixo ate o proximo turno"
-)
-
-inversion = TCGCard(
-    name="Inversão",
-    card_type="Efeito",
-    attack=0,
-    defense=0,
-    cost=0,
-    ability="Troque o poder e a defesa de uma carta em campo ate o final do turno"
-)
-
-mental_barrier = TCGCard(
-    name="Barreira Mental",
-    card_type="Efeito",
-    attack=0,
-    defense=0,
-    cost=0,
-    ability="Counter: Negue o efeito de uma carta de efeito do oponente"
-)
-
-
-# Novos Especiais (2 de cada)
-
-lyra = TCGCard(
-    name="Lyra",
-    card_type="Especial",
-    attack=3500,
-    defense=4000,
-    cost=3,
-    ability="Quando entra em campo vc pode olhar as 2 primeiras cartas do seu baralho",
-    attack_style="Especial"
-)
-
-kairo = TCGCard(
-    name="Kairo",
-    card_type="Especial",
-    attack=5500,
-    defense=2500,
-    cost=5,
-    ability="Quando ataca pode pagar 1 energia para atacar novamente",
-    attack_style="Especial"
-)
-
-selene = TCGCard(
-    name="Selene",
-    card_type="Especial",
-    attack=2000,
-    defense=6000,
-    cost=4,
-    ability="Enquanto estiver em campo todas as suas cartas ganham +1000 de defesa",
-    attack_style="Especial"
-)
-
-vortex = TCGCard(
-    name="Vortex",
-    card_type="Especial",
-    attack=4500,
-    defense=3000,
-    cost=6,
-    ability="Quando entra em campo destroi uma carta de energia do oponente",
-    attack_style="Especial"
-)
-
-
 # Comuns (2 de cada)
 
 apprentice = TCGCard(
     name="Aprendiz Arcano",
     card_type="Comum",
-    attack=2500,
-    defense=1500,
+    attack=3000,
+    defense=2000,
     cost=2,
     ability="Nenhuma",
     attack_style="Especial"
@@ -333,8 +249,8 @@ apprentice = TCGCard(
 guardian = TCGCard(
     name="Guardião da Biblioteca",
     card_type="Comum",
-    attack=1500,
-    defense=3500,
+    attack=2000,
+    defense=4000,
     cost=3,
     ability="Nenhuma",
     attack_style="Fisico"
@@ -354,7 +270,7 @@ mystic_scribe = TCGCard(
     name="Escriba Místico",
     card_type="Comum",
     attack=2000,
-    defense=2500,
+    defense=3000,
     cost=2,
     ability="Quando entra em campo vc pode comprar 1 carta",
     attack_style="Especial"
@@ -363,8 +279,8 @@ mystic_scribe = TCGCard(
 runist = TCGCard(
     name="Runista",
     card_type="Comum",
-    attack=2800,
-    defense=1800,
+    attack=3000,
+    defense=2000,
     cost=3,
     ability="Nenhuma",
     attack_style="Especial"
@@ -399,15 +315,7 @@ deck = (
 
     energies +
 
-    [arcane_echo] * 2 +
-    [seal_of_knowledge] * 2 +
-    [inversion] * 2 +
-    [mental_barrier] * 2 +
 
-    [lyra] * 2 +
-    [kairo] * 2 +
-    [selene] * 2 +
-    [vortex] * 2 +
 
     [apprentice] * 2 +
     [guardian] * 2 +
