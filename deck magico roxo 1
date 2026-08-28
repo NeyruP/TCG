@@ -13,5 +13,6 @@
 #<cartas especiais 3> drogoon (classe: magico) (estilo de ataque: fisico) (custo: 5 energia) (poder 1000) (defesa 9000)
 #<cartas especiais 4> Bomia (classe: magico) (esilo de ataque: especial) (custo: 6 energia) (poder 2000) (defesa 2000) (skill: quando vc compra uma carta com ele em campo você pode transformala em uma carta de vida)
 
-#<cartas comum 1> estudante de magia (classe: magico) (estilo de ataque: especial) (custo: 2 energia) (poder 3000) (defesa 2000)
-#<cartas comum 1> estudante de magia (classe: magico) (estilo de ataque: especial) (custo: 2 energia) (poder 3000) (defesa 2000)
+#<cartas comum 1> estudante de magia (classe: magico) (estilo de ataque: especial) (custo: 2 energia) (poder 3000) (defesa 2000) (efeito: com 2 cartas energia nele você pode comprar um tomo da sabedoria)
+#<cartas comum 2> secrataria (classe: especialista) (estilo de ataque fisico) (custo: 2 energia) (poder 2000) (defesa: 3000) (efeito: restaura uma carta energia)
+#<cartas comum 3> 
