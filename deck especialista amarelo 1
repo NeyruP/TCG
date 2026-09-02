@@ -9,5 +9,8 @@
 
 #<carta especial 1> engibot (classe: especialista) (estilo de ataque: fisico) (custo: 4) (poder: 4000) (defesa: 3000) (efeito: cria torretas cada uma tem + 1000 de poder e + 3000 defesa 'uma vez por turno')
 #<carta especial 2> Servidor (classe: especialista) (estilo de ataque: fisico) (custo: 8) (poder: 1000) (defesa: 7000) (efeito: cartas iguais recebem + 1000 de dano por copia em campo)
-#<carta especial 3> hakbot (classe: especialista) (estilo de ataque: projetil) (custo : 7) (poder 5000) (defesa: 4000) (efeito: ele pode alterar o valor dos atributos de poder e defesa de uma carta)
-#<carta especial 4> 
+#<carta especial 3> hakbot (classe: especialista) (estilo de ataque: projetil) (custo : 7) (poder: 5000) (defesa: 4000) (efeito: ele pode alterar o valor dos atributos de poder e defesa de uma carta)
+#<carta especial 4> mecha <classe: especialista (estilo de ataque: fisico) (custo: 10) (poder: 8000) (defesa: 7000) (efeito: se autodestroi em  turnos)
+
+#<carta comum 1> torretas (classe: especialista) (estilo de ataque: projetil) (custo: 2) ( poder: 1000) (defesa: 3000)
+#<carta comum 2> 
