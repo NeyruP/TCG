@@ -1,2 +1,10 @@
 #<Leader Tanmech> (classe: militar) (estilo de ataque: projetil) (poder:5000) (defesa: 5000) (efeito: quando for ser atacado tanmech escolhe alguma carta aliada para tomar o golpe por você)
-#<terreno> (classe: militar) (efeito: 
+#<terreno> As trincheiras  (classe: militar) (efeito: cartas de classe militar recebem mais 1000 de vida 'para o lider isso vira poder')
+#<item> Tanque (classe: militar) (efeito: quando dado a uma carta ela recebe mais 1000 de vida 'para o lider isso vira poder')
+
+#<cartas de efeito 1> misseis (classe: militar) (custo: 5) (efeito: você pode atacar ate 4 cartas dando 1000 de dano em cada ou atacar uma dando 4000 de dano)
+#<cartas de efeito 2> bala perfurante (classe: militar) (custo: 3) (efeito: dando está carta a outra permite com que ela atravesse uma carta blocker dando dano direto no leader)
+#<cartas de efeito 3> mina terrestre (classe: militar) (custo: 2) (efeito: quando utilizada o leader recebe + 4000 de poder) 'counter'
+#<cartas de efeito 4> recrutas devotos (classe: militar) (custo: 6) (efeito: quando for atacado o leader recebe + 5000 de poder e 2000 de vida) 'counter'
+
+#<cartas especiais 1> 
