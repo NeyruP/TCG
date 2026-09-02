@@ -1,0 +1,13 @@
+#<leader> bobo (classe: especialista) (estilo de ataque: projetil) (vida: 2) (poder: 5000) (efeito: permite vc colocar cartas até custo 4 de graça e cartas de custo maior por metade do valor de energia)
+#<terreno> oficina (classe: especialista) (efeito: as cartas ganham + 1000 de vida)
+#<item> chave inglesa (classe: especialista) (efeito: a carta recebe + 1000 de vida)
+
+#<carta de efeito 1> overclock (classe: especialista) (custo: 3) (efeito: aumenta em +2000 de dano suas cartas)
+#<carta de efeito 2> formatar (classe: especialista) (custo: 5) (efeito: recupera a vida de cartas feridas em +3000)
+#<carta de efeito 3> armadilha (classe: especialista) (custo: 3) (efeito: quando for atacado ganha + 3000 de poder) 'counter'
+#carta de efeito 4> reiniciar (classe: especialista) (custo: 7) (efeito: quando utilizado em uma carta ela recupera vida total e ganha +2000 de poder)
+
+#<carta especial 1> engibot (classe: especialista) (estilo de ataque: fisico) (custo: 4) (poder: 4000) (defesa: 3000) (efeito: cria torretas cada uma tem + 1000 de poder e + 3000 defesa 'uma vez por turno')
+#<carta especial 2> Servidor (classe: especialista) (estilo de ataque: fisico) (custo: 8) (poder: 1000) (defesa: 7000) (efeito: cartas iguais recebem + 1000 de dano por copia em campo)
+#<carta especial 3> hakbot (classe: especialista) (estilo de ataque: projetil) (custo : 7) (poder 5000) (defesa: 4000) (efeito: ele pode alterar o valor dos atributos de poder e defesa de uma carta)
+#<carta especial 4> 
