@@ -7,4 +7,5 @@
 #<cartas de efeito 3> mina terrestre (classe: militar) (custo: 2) (efeito: quando utilizada o leader recebe + 4000 de poder) 'counter'
 #<cartas de efeito 4> recrutas devotos (classe: militar) (custo: 6) (efeito: quando for atacado o leader recebe + 5000 de poder e 2000 de vida) 'counter'
 
-#<cartas especiais 1> 
+#<cartas especiais 1> nuke (classe: militar) (custo: 10) (estilo de ataque: explossão) (poder: 0) (defesa: 10000) (efeito: em 3 turnos essa carta se autodestuira causando uma explosão que derrota todas as cartas do adversario exeto o leader do campo e as suas também resetando o campo mas se ela for destruida antes de 3 turnos o efeito não ativara)
+#<cartas especiais 2> Recrubo (classe: militar) (custo: 4) (estilo de ataque: projetil) (poder: 2000) (defesa: 6000) (efeito: ele chama para o combate as cartas recruta ficando ao lado dele)
