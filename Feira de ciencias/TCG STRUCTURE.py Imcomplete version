@@ -1,0 +1,929 @@
+import random
+import copy
+import uuid
+from collections import Counter
+
+# -------------------------
+# Classes principais das cartas e do jogo
+# -------------------------
+
+class TCGCard:
+    def __init__(
+        self,
+        name,
+        card_type,
+        attack=0,
+        defense=0,
+        cost=0,
+        ability="",
+        card_class="Neutro",
+        attack_style=None,
+        energy_generated=0,
+        life=0,
+        speed="Sorcery",  # "Instant" ou "Sorcery" (para pilha/respostas)
+        keywords=None,  # por exemplo: ["Defender"], ["Haste"]
+    ):
+        self.id = str(uuid.uuid4())
+        self.name = name
+        self.card_type = card_type  # por exemplo: "Líder","Comum","Especial","Efeito","Energia","Terreno","Item"
+        self.attack = attack
+        self.defense = defense
+        self.cost = cost
+        self.ability = ability
+        self.card_class = card_class  # string; pode conter vírgulas se for modificada pelo Tomo
+        self.attack_style = attack_style
+        self.energy_generated = energy_generated
+        self.life = life  # apenas para líderes
+        self.ja_atacou = False
+        self.buff_ataque = 0
+        self.buff_defesa = 0
+        self.owner = None  # definido quando atribuído a um jogador
+        self.summoned_this_turn = False  # enjoo de invocação
+        self.speed = speed
+        self.keywords = set(keywords or [])
+
+    def atk_total(self):
+        base = self.attack + self.buff_ataque
+        # Terreno Biblioteca: se o dono tiver "A Grande Biblioteca" em campo e esta carta for Mágico, +1000 ATK
+        try:
+            if self.owner and "Mágico" in str(self.card_class):
+                for c in self.owner.field:
+                    if c.card_type == "Terreno" and c.name == "A Grande Biblioteca":
+                        base += 1000
+                        break
+        except Exception:
+            pass
+        return base
+
+    def def_total(self):
+        return self.defense + self.buff_defesa
+
+    def copy_for_deck(self):
+        c = copy.deepcopy(self)
+        c.id = str(uuid.uuid4())
+        c.owner = None
+        c.ja_atacou = False
+        c.summoned_this_turn = False
+        c.buff_ataque = 0
+        c.buff_defesa = 0
+        return c
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "type": self.card_type,
+            "atk": self.atk_total(),
+            "def": self.def_total(),
+            "cost": self.cost,
+            "ability": self.ability,
+            "class": self.card_class,
+            "attack_style": self.attack_style,
+            "energy_generated": self.energy_generated,
+            "life": self.life,
+            "keywords": list(self.keywords),
+            "ja_atacou": self.ja_atacou,
+            "summoned_this_turn": self.summoned_this_turn,
+        }
+
+# -------------------------
+# Definições das cartas
+# -------------------------
+
+# LÍDER
+rogen = TCGCard(
+    name="Rogen",
+    card_type="Líder",
+    attack=5000,
+    defense=5000,
+    cost=0,
+    ability="Quando o líder for atacar você pode olhar as 5 primeiras cartas do seu baralho e colocar uma na sua mão (precisa de 3 energias)",
+    attack_style="Especial",
+    card_class="Mágico",
+    life=5,
+    speed="Instant",
+)
+
+# TERRENO / FUNDO
+biblioteca = TCGCard(
+    name="A Grande Biblioteca",
+    card_type="Terreno",
+    attack=0,
+    defense=0,
+    cost=0,
+    ability="Quando colocado em campo, aumenta em +1000 o dano de ataque de cartas do tipo Mágico",
+    card_class="Mágico",
+)
+
+# ITENS
+tome = TCGCard(
+    name="Tomo da Sabedoria",
+    card_type="Item",
+    attack=0,
+    defense=0,
+    cost=0,
+    ability="Adiciona a classe Mágico a uma carta à escolha",
+    card_class="Mágico",
+)
+
+# EFEITOS (Feitiços/Instantâneos)
+annul = TCGCard(
+    name="Anular",
+    card_type="Efeito",
+    attack=0,
+    defense=0,
+    cost=4,
+    ability="Counter: anula uma carta de efeito do topo do deck do oponente",
+    card_class="Mágico",
+    speed="Instant",
+)
+
+assembly = TCGCard(
+    name="Assembleia",
+    card_type="Efeito",
+    attack=0,
+    defense=0,
+    cost=2,
+    ability="Concede +3000 DEF temporário a um aliado (apenas neste turno)",
+    card_class="Mágico",
+    speed="Instant",
+)
+
+graduation = TCGCard(
+    name="Graduação",
+    card_type="Efeito",
+    attack=0,
+    defense=0,
+    cost=2,
+    ability="Aumenta permanentemente o ATK de um Estudante de Magia em +2000",
+    card_class="Mágico",
+    speed="Sorcery",
+)
+
+channel = TCGCard(
+    name="Canalizar",
+    card_type="Efeito",
+    attack=0,
+    defense=0,
+    cost=6,
+    ability="Dá +6000 ATK a um personagem, ele vai para o descarte (efeito de sacrifício)",
+    card_class="Mágico",
+    speed="Sorcery",
+)
+
+# ESPECIAIS / UNIDADES FORTES
+rodote = TCGCard(
+    name="Rodote",
+    card_type="Especial",
+    attack=4000,
+    defense=5000,
+    cost=3,
+    ability="Permite prever as próximas 3 primeiras cartas do baralho inimigo",
+    attack_style="Especial",
+    card_class="Mágico",
+)
+
+mabo = TCGCard(
+    name="Mabo",
+    card_type="Especial",
+    attack=7000,
+    defense=3000,
+    cost=8,
+    ability="Quando em campo, anula efeitos direcionados ao líder",
+    attack_style="Especial",
+    card_class="Mágico",
+)
+
+drogoon = TCGCard(
+    name="Drogoon",
+    card_type="Especial",
+    attack=6000,
+    defense=6000,
+    cost=6,
+    ability="Característica: Defensor",
+    attack_style="Físico",
+    card_class="Mágico",
+    keywords=["Defender"],
+)
+
+bomia = TCGCard(
+    name="Bomia",
+    card_type="Especial",
+    attack=2000,
+    defense=2000,
+    cost=4,
+    ability="Quando você compra uma carta com ele em campo, você pode transformá-la em uma carta de vida",
+    attack_style="Especial",
+    card_class="Mágico",
+)
+
+# COMUNS
+estudante = TCGCard(
+    name="Estudante de Magia",
+    card_type="Comum",
+    attack=3000,
+    defense=2000,
+    cost=2,
+    ability="Com 2 cartas de Energia nele você pode comprar um Tomo da Sabedoria | Counter: 1000",
+    attack_style="Especial",
+    card_class="Mágico",
+)
+
+helbo = TCGCard(
+    name="Helbo",
+    card_type="Comum",
+    attack=2000,
+    defense=3000,
+    cost=2,
+    ability="Restaura uma carta de Energia | Característica: Defensor | Counter: 1000",
+    attack_style="Físico",
+    card_class="Especialista",
+    keywords=["Defender"],
+)
+
+marbo = TCGCard(
+    name="Marbo",
+    card_type="Comum",
+    attack=4000,
+    defense=2000,
+    cost=3,
+    ability="Pode atacar no mesmo turno que for colocado em campo | Característica: Apressado | Counter: 1000",
+    attack_style="Físico",
+    card_class="Lutador",
+    keywords=["Haste"],
+)
+
+professor = TCGCard(
+    name="Professor de Magia",
+    card_type="Comum",
+    attack=3000,
+    defense=3000,
+    cost=3,
+    ability="Counter: 2000",
+    attack_style="Especial",
+    card_class="Mágico",
+)
+
+# ENERGIAS
+energies = [
+    TCGCard(name="Cristal de Mana", card_type="Energia", attack=0, defense=0, cost=0, ability="Gera 1 energia", energy_generated=1),
+    TCGCard(name="Cristal de Mana", card_type="Energia", attack=0, defense=0, cost=0, ability="Gera 1 energia", energy_generated=1),
+    TCGCard(name="Cristal de Mana", card_type="Energia", attack=0, defense=0, cost=0, ability="Gera 1 energia", energy_generated=1),
+    TCGCard(name="Fonte Arcana", card_type="Energia", attack=0, defense=0, cost=0, ability="Gera 2 energias", energy_generated=2),
+    TCGCard(name="Fonte Arcana", card_type="Energia", attack=0, defense=0, cost=0, ability="Gera 2 energias", energy_generated=2),
+    TCGCard(name="Orbe do Conhecimento", card_type="Energia", attack=0, defense=0, cost=0, ability="Gera 1 energia", energy_generated=1),
+    TCGCard(name="Relíquia Arcana", card_type="Energia", attack=0, defense=0, cost=0, ability="Gera 1 energia", energy_generated=1),
+    TCGCard(name="Poço de Sabedoria", card_type="Energia", attack=0, defense=0, cost=0, ability="Gera 1 energia", energy_generated=1),
+    TCGCard(name="Runa Antiga", card_type="Energia", attack=0, defense=0, cost=0, ability="Gera 1 energia", energy_generated=1),
+    TCGCard(name="Estrela Cadente", card_type="Energia", attack=0, defense=0, cost=0, ability="Gera 3 energias (vai pro descarte depois de usar)", energy_generated=3),
+]
+
+# -------------------------
+# Criador de baralho
+# -------------------------
+
+def criar_deck():
+    base = (
+        [tome] +
+        [biblioteca] +
+        [annul] * 4 +
+        [assembly] * 4 +
+        [graduation] * 4 +
+        [channel] * 4 +
+        [rodote] * 2 +
+        [mabo] * 2 +
+        [drogoon] * 2 +
+        [bomia] * 2 +
+        energies +
+        [estudante] * 4 +
+        [helbo] * 4 +
+        [marbo] * 4 +
+        [professor] * 4
+    )
+    # retorna cópias profundas das cartas com novos IDs
+    return [c.copy_for_deck() for c in base]
+
+# -------------------------
+# Jogador (não interativo)
+# -------------------------
+
+class Player:
+    def __init__(self, name, deck_cards, leader_card, seed=None):
+        self.name = name
+        self.deck = [c.copy_for_deck() for c in deck_cards]
+        self.hand = []
+        self.field = []  # cartas em jogo (unidades, terrenos, itens)
+        self.grave = []
+        # Começa com 2 de energia conforme solicitado
+        self.energy_pool = 2
+        self.leader = copy.deepcopy(leader_card)
+        self.leader.owner = self
+        # estado de ataque do líder
+        self.leader.ja_atacou = False
+        self.leader.owner = self
+        self.leader_life = self.leader.life
+        self.vivo = True
+        self.seed = seed
+        if seed is not None:
+            random.seed(seed)
+        random.shuffle(self.deck)
+        self.life = []
+        self.prepare_life_from_deck()
+
+    def prepare_life_from_deck(self):
+        # As N cartas do topo se tornam vidas (viradas para baixo)
+        self.life = []
+        for _ in range(self.leader.life):
+            if self.deck:
+                self.life.append(self.deck.pop(0))
+
+    def reset_for_new_turn(self):
+        for c in self.field:
+            c.ja_atacou = False
+            # limpa marcadores temporários de fim de turno, se existirem
+            if hasattr(c, "temp_def_turns"):
+                # diminui e remove o bônus temporário quando chegar a 0
+                c.temp_def_turns -= 1
+                if c.temp_def_turns <= 0:
+                    # Tenta remover os +3000 adicionados (não rastreamos a quantidade exata por marcador, mas sabemos que Assembleia concede 3000)
+                    c.buff_defesa = max(0, c.buff_defesa - 3000)
+                    delattr = False
+                    try:
+                        del c.temp_def_turns
+                    except Exception:
+                        pass
+        # reinicia o estado de ataque do líder
+        self.leader.ja_atacou = False
+
+    # ----- operações básicas -----
+    def draw(self, n=1):
+        """
+        Standard draw: returns list of drawn cards (moved to hand unless Bomia effect applies).
+        Bomia: if Bomia is on field, the first drawn card in this draw sequence will be transformed into life automatically.
+        """
+        drawn = []
+        bomia_present = any(c.name == "Bomia" for c in self.field)
+        for i in range(n):
+            if not self.deck:
+                break
+            card = self.deck.pop(0)
+            # Efeito de Bomia: a primeira carta comprada se torna vida
+            if bomia_present and i == 0:
+                # transforma em zona de vida (colocamos no final das vidas, então não será necessariamente a próxima)
+                self.life.append(card)
+                drawn.append({"moved_to": "life", "card": card})
+            else:
+                self.hand.append(card)
+                drawn.append({"moved_to": "hand", "card": card})
+        return drawn
+
+    def draw_initial_hand(self, hand_size=5):
+        """
+        Draws the initial hand and enforces:
+        - The hand is not entirely Efeito cards.
+        - The hand contains at least one card with atk>0 (attacker).
+        If constraints are not met, attempt to swap cards from deck into hand to satisfy constraints.
+        This modifies deck ordering but tries minimally invasive swaps.
+        """
+        self.hand = []
+        # Primeiro, faz a compra básica
+        while len(self.hand) < hand_size and self.deck:
+            # usa a lógica de draw(1), mas garante que Bomia não transforme automaticamente as compras iniciais em vida (queremos a mão inicial real)
+            card = self.deck.pop(0)
+            self.hand.append(card)
+
+        def has_non_effect():
+            return any(c.card_type != "Efeito" for c in self.hand)
+
+        def has_attacker():
+            return any((getattr(c, "attack", 0) + getattr(c, "buff_ataque", 0)) > 0 for c in self.hand)
+
+        # Tenta trocar cartas para garantir que nem todas sejam efeitos
+        attempts = 0
+        max_attempts = 200
+        while (not has_non_effect() or not has_attacker()) and attempts < max_attempts and self.deck:
+            attempts += 1
+            # encontra uma carta candidata no baralho
+            swap_idx = None
+            for i, dc in enumerate(self.deck):
+                if not has_non_effect() and dc.card_type != "Efeito":
+                    swap_idx = i
+                    break
+                if not has_attacker() and (getattr(dc, "attack", 0) > 0):
+                    swap_idx = i
+                    break
+            if swap_idx is None:
+                break  # não é possível corrigir
+            # escolhe a carta da mão para trocar: prefere um Efeito ou, caso contrário, a primeira carta
+            hand_swap_idx = None
+            for hi, hc in enumerate(self.hand):
+                if hc.card_type == "Efeito":
+                    hand_swap_idx = hi
+                    break
+            if hand_swap_idx is None:
+                hand_swap_idx = 0
+            # realiza a troca: coloca a carta da mão no fundo do baralho e a carta do baralho na mão
+            hand_card = self.hand[hand_swap_idx]
+            deck_card = self.deck.pop(swap_idx)
+            self.hand[hand_swap_idx] = deck_card
+            self.deck.append(hand_card)
+        return [c.to_dict() for c in self.hand]
+
+    def generate_energy(self, amount):
+        self.energy_pool += amount
+        return self.energy_pool
+
+    def can_play(self, card_index):
+        if not (0 <= card_index < len(self.hand)):
+            return False
+        card = self.hand[card_index]
+        return self.energy_pool >= card.cost
+
+    def play_card(self, card_index, game=None, target=None):
+        """
+        Plays a card from hand.
+        - Energia cards: immediately add energy_generated and go to grave.
+        - Efeito: put on stack (game.stack) with context.
+        - Units/Terrenos/Items: move to field, mark summoned_this_turn unless they have Haste.
+        target is a dict that the controller can pass for targeted effects, e.g. {"opponent": other_player, "index":0} or {"card_id": "..."}
+        """
+        if not (0 <= card_index < len(self.hand)):
+            raise IndexError("card_index out of range")
+        card = self.hand[card_index]
+        if self.energy_pool < card.cost:
+            raise ValueError("Insufficient energy to play card")
+        # paga o custo
+        self.energy_pool -= card.cost
+        # Define o dono
+        card.owner = self
+        # resolve por tipo
+        if card.card_type == "Energia":
+            # energia imediata
+            self.energy_pool += card.energy_generated
+            self.grave.append(card)
+            self.hand.pop(card_index)
+            return {"action": "energy_used", "generated": card.energy_generated, "card": card.to_dict()}
+
+        elif card.card_type == "Efeito":
+            if game is None:
+                raise ValueError("Game instance required to put effects on stack")
+            effect_instance = {
+                "card": card,
+                "controller": self,
+                "target": target,
+            }
+            game.stack.append(effect_instance)
+            self.hand.pop(card_index)
+            return {"action": "effect_on_stack", "card": card.to_dict(), "target": target}
+
+        elif card.card_type in ["Comum", "Especial", "Terreno", "Item"]:
+            card.ja_atacou = False
+            card.summoned_this_turn = "Haste" not in card.keywords
+            self.field.append(card)
+            self.hand.pop(card_index)
+            # Ativa quaisquer habilidades de "entrada no campo"
+            result = {"action": "card_to_field", "card": card.to_dict()}
+            # Rodote: revela as 3 cartas do topo do baralho inimigo se o oponente for fornecido em target ou, se houver apenas 2 jogadores, assume o outro jogador
+            if card.name == "Rodote" and game is not None:
+                opponent = None
+                if target and "opponent" in target:
+                    opponent = target["opponent"]
+                else:
+                    # determina o oponente se houver 2 jogadores
+                    if len(game.players) == 2:
+                        opponent = [p for p in game.players if p is not self][0]
+                if opponent:
+                    top3 = [c.to_dict() for c in opponent.deck[:3]]
+                    result["rodote_reveal"] = top3
+            # Tomo da Sabedoria: adiciona a classe Mágico à carta-alvo em campo (requer um alvo com card_id)
+            if card.name == "Tomo da Sabedoria" and target:
+                card_id = target.get("card_id")
+                if card_id:
+                    # procura primeiro no campo do controlador e depois em qualquer lugar
+                    targ = None
+                    for c in self.field:
+                        if c.id == card_id:
+                            targ = c
+                            break
+                    if targ:
+                        if "Mágico" not in str(targ.card_class):
+                            targ.card_class = f"{targ.card_class},Mágico"
+                        result["tome_applied"] = targ.to_dict()
+            return result
+
+        else:
+            # alternativa
+            card.ja_atacou = False
+            card.summoned_this_turn = True
+            self.field.append(card)
+            self.hand.pop(card_index)
+            return {"action": "card_to_field", "card": card.to_dict()}
+
+    def receive_damage(self, amount=1, source=None):
+        """
+        Damage amount is number of life cards to be lost.
+        Each point causes a life card to be moved to hand (revealed).
+        """
+        for _ in range(amount):
+            if not self.life:
+                self.vivo = False
+                break
+            card_life = self.life.pop(0)
+            # revela -> coloca na mão
+            self.hand.append(card_life)
+        return {"remaining_life": len(self.life), "alive": self.vivo}
+
+    def find_field_card_by_id(self, card_id):
+        for c in self.field:
+            if c.id == card_id:
+                return c
+        return None
+
+    def remove_field_card(self, card):
+        if card in self.field:
+            self.field.remove(card)
+            self.grave.append(card)
+            return True
+        return False
+
+    def end_turn_reset(self):
+        # limpeza no final do turno
+        self.reset_for_new_turn()
+        return True
+
+    def get_state(self):
+        return {
+            "name": self.name,
+            "hand": [c.to_dict() for c in self.hand],
+            "field": [c.to_dict() for c in self.field],
+            "grave": [c.to_dict() for c in self.grave],
+            "deck_count": len(self.deck),
+            "life_count": len(self.life),
+            "energy": self.energy_pool,
+            "leader": self.leader.name,
+            "leader_life": self.leader_life,
+            "alive": self.vivo,
+        }
+
+# -------------------------
+# Motor do jogo (sem IA)
+# -------------------------
+
+class Game:
+    def __init__(self, players):
+        """
+        players: list of Player instances (2 players recommended).
+        This engine does NOT auto-play opponents. It provides methods to progress phases, play cards, push effects to stack, resolve stack, and perform attacks.
+        """
+        if len(players) < 2:
+            raise ValueError("At least two players required")
+        self.players = players
+        self.active_player_idx = 0
+        self.turn = 1
+        self.stack = []  # LIFO: lista de instâncias de efeitos {carta, controlador, alvo}
+        self.phase = "NOT_STARTED"  # pode ser "BEGIN", "MAIN", "ATTACK", "END"
+        self.winner = None
+
+    # ----- fluxo de controle -----
+    def set_active_player(self, player_idx):
+        if not (0 <= player_idx < len(self.players)):
+            raise IndexError("player_idx out of range")
+        self.active_player_idx = player_idx
+
+    @property
+    def active_player(self):
+        return self.players[self.active_player_idx]
+
+    @property
+    def non_active_player(self):
+        return self.players[1 - self.active_player_idx]
+
+    def begin_turn(self):
+        """
+        Start-of-turn effects:
+        - Reset attack flags (except summoned_this_turn)
+        - Energy generation rule:
+          * Start of game: players start with 2 energy.
+          * On each begin_turn: +1 energy per turn, but from turn 3 onwards +2 per turn (global turn count).
+        - Draw 1 card.
+        """
+        p = self.active_player
+        self.phase = "BEGIN"
+        # reinicia as marcações de ataque, exceto summoned_this_turn
+        for c in p.field:
+            c.ja_atacou = False
+        p.leader.ja_atacou = False
+        # regra de geração de energia: +1 a cada turno, mas a partir do turno 3, +2
+        gain = 2 if self.turn >= 3 else 1
+        p.generate_energy(gain)
+        # compra 1 carta (Bomia pode transformar automaticamente a primeira compra em vida)
+        p.draw(1)
+        # verifica se o baralho acabou
+        self._check_player_vitality()
+        return {"phase": self.phase, "player": p.name, "energy_gained": gain, "energy": p.energy_pool}
+
+    def main_phase(self):
+        self.phase = "MAIN"
+        return {"phase": self.phase, "player": self.active_player.name}
+
+    def attack_phase(self):
+        self.phase = "ATTACK"
+        return {"phase": self.phase, "player": self.active_player.name}
+
+    def end_turn(self):
+        self.phase = "END"
+        self.active_player.end_turn_reset()
+        # alterna o jogador ativo
+        self.active_player_idx = 1 - self.active_player_idx
+        self.turn += 1
+        self._check_player_vitality()
+        return {"phase": self.phase, "next_player": self.active_player.name, "turn": self.turn}
+
+    def _check_player_vitality(self):
+        for p in self.players:
+            if not p.vivo:
+                living = [pl for pl in self.players if pl.vivo]
+                if living:
+                    self.winner = living[0].name
+                else:
+                    self.winner = None
+
+    # ----- resolução da pilha -----
+    def resolve_top_of_stack(self):
+        """
+        Resolves the last effect on the stack (LIFO).
+        Effects should invoke typed resolution functions here.
+        """
+        if not self.stack:
+            return {"resolved": None}
+        instance = self.stack.pop()
+        card = instance["card"]
+        controller = instance["controller"]
+        target = instance.get("target")
+        # Verificação de Mabo: se o alvo for um líder e o controlador desse líder tiver Mabo -> cancela o efeito
+        if target and isinstance(target, dict):
+            tgt_player = target.get("target_player")
+            tgt_part = target.get("target_part")
+            if tgt_player and tgt_part == "leader":
+                # verifica se o campo desse jogador possui Mabo
+                if any(c.name == "Mabo" for c in tgt_player.field):
+                    # o efeito é cancelado
+                    controller.grave.append(card)
+                    return {"canceled_by_mabo": True, "card": card.name}
+        # direciona pelo nome da carta (tratadores simples e explícitos)
+        result = self._resolve_effect(card, controller, target)
+        # Após a resolução, move a carta para o cemitério do controlador (se ainda não tiver sido movida pelo resolvedor)
+        if card not in controller.grave:
+            controller.grave.append(card)
+        return {"resolved": card.name, "result": result, "controller": controller.name}
+
+    def resolve_all_stack(self):
+        results = []
+        while self.stack:
+            results.append(self.resolve_top_of_stack())
+        return results
+
+    def _resolve_effect(self, card, controller, target):
+        """
+        Centralized effect resolver: implement each card's behavior here.
+        target is a dict that describes what to act upon:
+          - For targeting opponent deck top card index: {"opponent": other_player, "index": 0}
+          - For buffing a field card: {"card_id": "..."}
+          - For targeting a player's leader: {"target_player": player, "target_part": "leader"}
+        """
+        name = card.name
+        if name == "Anular":
+            opponent = (target or {}).get("opponent")
+            idx = (target or {}).get("index")
+            if not opponent:
+                return {"error": "No opponent targeted"}
+            top = opponent.deck[:3]
+            if idx is None:
+                # padrão: encontra o primeiro Efeito e o envia para o cemitério
+                for i, c in enumerate(top):
+                    if c.card_type == "Efeito":
+                        card_to_grave = opponent.deck.pop(i)
+                        opponent.grave.append(card_to_grave)
+                        return {"anulled": card_to_grave.name}
+                return {"anulled": None}
+            else:
+                if 0 <= idx < min(3, len(opponent.deck)):
+                    c = opponent.deck[idx]
+                    if c.card_type == "Efeito":
+                        opponent.deck.pop(idx)
+                        opponent.grave.append(c)
+                        return {"anulled": c.name}
+                return {"anulled": None}
+
+        elif name == "Assembleia":
+            card_id = (target or {}).get("card_id")
+            if not card_id:
+                return {"error": "No target card_id"}
+            for c in controller.field:
+                if c.id == card_id:
+                    c.buff_defesa += 3000
+                    # marcador temporário
+                    c.temp_def_turns = getattr(c, "temp_def_turns", 0) + 1
+                    return {"buffed": c.name, "new_def": c.def_total()}
+            return {"error": "target not found"}
+
+        elif name == "Graduação":
+            card_id = (target or {}).get("card_id")
+            if not card_id:
+                return {"error": "No target card_id"}
+            for c in controller.field:
+                if c.id == card_id and c.name == "Estudante de Magia":
+                    c.buff_ataque += 2000
+                    return {"buffed": c.name, "new_atk": c.atk_total()}
+            return {"error": "target not found or not estudante"}
+
+        elif name == "Canalizar":
+            card_id = (target or {}).get("card_id")
+            if not card_id:
+                return {"error": "No target card_id"}
+            for c in list(controller.field):
+                if c.id == card_id and c.card_type in ["Comum", "Especial"]:
+                    c.buff_ataque += 6000
+                    # sacrifício: move para o cemitério
+                    controller.remove_field_card(c)
+                    controller.grave.append(c)
+                    return {"channeled": c.name, "atk": c.atk_total()}
+            return {"error": "target not found"}
+
+        # Padrão: nenhuma ação
+        return {"note": f"No resolver for {name}"}
+
+    # ----- ataques -----
+    def attack_with_leader(self, defending_player, use_ability=False):
+        """
+        Leader attacks: deals 1 life as per design, unless leader atk_total <= 0.
+        If use_ability True and leader has an ability that requires energy (Rogen example),
+        attempt to pay and resolve the ability.
+        """
+        attacker_player = self.active_player
+        leader = attacker_player.leader
+        if leader.ja_atacou:
+            raise ValueError("Leader already attacked this turn")
+        if leader.atk_total() <= 0:
+            raise ValueError("Leader has no attack power")
+        # Se estiver usando a habilidade e ela for a habilidade de Rogen, que requer 3 energias:
+        if use_ability and "Rogen" in leader.name:
+            if attacker_player.energy_pool >= 3:
+                attacker_player.energy_pool -= 3
+                # olha as 5 cartas do topo do baralho do ATACANTE e coloca uma na mão
+                top5 = attacker_player.deck[:5]
+                if top5:
+                    # escolhe a melhor carta de forma determinística: maior ATK, se houver; caso contrário, a primeira
+                    choice = max(top5, key=lambda c: getattr(c, "attack", 0))
+                    # remove a carta escolhida do baralho
+                    for i, c in enumerate(attacker_player.deck[:5]):
+                        if c.id == choice.id:
+                            attacker_player.deck.pop(i)
+                            attacker_player.hand.append(choice)
+                            break
+                    # retorna as informações para quem chamou
+                    leader.ja_atacou = True
+                    defending_player.receive_damage(1, source=leader.name)
+                    return {"leader_attack": leader.name, "ability_used": True, "stolen_card": choice.to_dict()}
+                else:
+                    leader.ja_atacou = True
+                    defending_player.receive_damage(1, source=leader.name)
+                    return {"leader_attack": leader.name, "ability_used": True, "stolen_card": None}
+            else:
+                # Energia insuficiente; continua como um ataque normal
+                leader.ja_atacou = True
+                defending_player.receive_damage(1, source=leader.name)
+                return {"leader_attack": leader.name, "ability_used": False, "reason": "insufficient energy"}
+        else:
+            leader.ja_atacou = True
+            defending_player.receive_damage(1, source=leader.name)
+            return {"leader_attack": leader.name, "ability_used": False}
+
+    def attack_leader(self, attacker_id, defending_player):
+        """
+        Attacker_id is card.id on active player's field.
+        Damage logic: as in previous design, attacking leader deals 1 life.
+        """
+        attacker = None
+        for c in self.active_player.field:
+            if c.id == attacker_id:
+                attacker = c
+                break
+        if attacker is None:
+            raise ValueError("Attacker not found on field")
+        if attacker.atk_total() <= 0:
+            raise ValueError("Attacker has no attack power")
+        if attacker.ja_atacou:
+            raise ValueError("Attacker has already attacked this turn")
+        if attacker.summoned_this_turn:
+            raise ValueError("Attacker has summoning sickness")
+
+        # resolve
+        result = defending_player.receive_damage(1, source=attacker.name)
+        attacker.ja_atacou = True
+        return {"attacker": attacker.name, "defender": defending_player.name, "result": result}
+
+    def attack_card(self, attacker_id, defender_id, defending_player):
+        """
+        Resolve combat between two units:
+        - If attacker's ATK >= defender's DEF -> defender destroyed (to grave)
+        - else -> attack fails (no damage)
+        """
+        attacker = None
+        for c in self.active_player.field:
+            if c.id == attacker_id:
+                attacker = c
+                break
+        if not attacker:
+            raise ValueError("Attacker not found")
+        defender = None
+        for c in defending_player.field:
+            if c.id == defender_id:
+                defender = c
+                break
+        if not defender:
+            raise ValueError("Defender not found")
+        if attacker.atk_total() <= 0:
+            raise ValueError("Attacker has no attack power")
+        if attacker.ja_atacou:
+            raise ValueError("Attacker already attacked")
+        if attacker.summoned_this_turn:
+            raise ValueError("Attacker has summoning sickness")
+
+        atk = attacker.atk_total()
+        defe = defender.def_total()
+        if atk >= defe:
+            # destrói o defensor
+            defending_player.remove_field_card(defender)
+            attacker.ja_atacou = True
+            return {"winner": attacker.name, "destroyed": defender.name}
+        else:
+            attacker.ja_atacou = True
+            return {"winner": None, "note": "attack failed"}
+
+    # ----- métodos utilitários para UI/controlador -----
+    def get_game_state(self):
+        return {
+            "turn": self.turn,
+            "active_player": self.active_player.name,
+            "phase": self.phase,
+            "stack_size": len(self.stack),
+            "players": [p.get_state() for p in self.players],
+            "winner": self.winner,
+        }
+
+    def get_stack_snapshot(self):
+        return [{"card": inst["card"].to_dict(), "controller": inst["controller"].name, "target": inst.get("target")} for inst in self.stack]
+
+# -------------------------
+# Exemplo: criando jogadores e jogo (não interativo)
+# -------------------------
+# A instanciação abaixo é um exemplo de como criar um jogo programaticamente.
+# Para integração com uma UI, chame estes construtores e use os métodos de Game para controlar o fluxo.
+
+if __name__ == "__main__":
+    deck_list = criar_deck()
+    # Cria dois jogadores com baralhos idênticos para teste
+    p1 = Player("Jogador1", deck_list, rogen, seed=42)
+    p2 = Player("Jogador2", deck_list, rogen, seed=43)
+
+    # Compra as mãos iniciais respeitando as restrições (sem mão só de efeitos, pelo menos um atacante)
+    p1.draw_initial_hand(5)
+    p2.draw_initial_hand(5)
+
+    game = Game([p1, p2])
+
+    # Sequência de exemplo (apenas demonstração; a UI deve chamar estes métodos)
+    # Inicia o turno 1 para p1
+    state_begin = game.begin_turn()
+    # Exemplo: p1 joga uma carta de energia, se houver uma
+    for idx, c in list(enumerate(p1.hand)):
+        if c.card_type == "Energia" and p1.can_play(idx):
+            p1.play_card(idx, game)
+            break
+
+    # Exemplo: p1 joga Rodote para visualizar as 3 cartas do topo do oponente (precisa passar o oponente)
+    for idx, c in list(enumerate(p1.hand)):
+        if c.name == "Rodote" and p1.can_play(idx):
+            p1.play_card(idx, game, target={"opponent": p2})
+            break
+
+    # Exemplo: p1 usa Anular mirando o topo de p2 (coloca na pilha)
+    for idx, c in list(enumerate(p1.hand)):
+        if c.name == "Anular" and p1.can_play(idx):
+            p1.play_card(idx, game, target={"opponent": p2, "index": 0})
+            break
+
+    # Resolve resultado do jogo
+    resolve_results = game.resolve_all_stack()
+
+    # Ataque do lider sem energia
+    try:
+        leader_attack_result = game.attack_with_leader(p2, use_ability=True)
+    except Exception as e:
+        leader_attack_result = {"error": str(e)}
+
+    # Front-End
+    state = game.get_game_state()
+    print("Game state (example):")
+    print(state)
