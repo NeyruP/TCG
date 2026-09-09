@@ -8,11 +8,11 @@
 #carta de efeito 4> reiniciar (classe: especialista) (custo: 7) (efeito: quando utilizado em uma carta ela recupera vida total e ganha +2000 de poder)
 
 #<carta especial 1> engibot (classe: especialista) (estilo de ataque: fisico) (custo: 4) (poder: 4000) (defesa: 3000) (efeito: cria torretas cada uma tem + 1000 de poder e + 3000 defesa 'uma vez por turno')
-#<carta especial 2> Servidor (classe: especialista) (estilo de ataque: fisico) (custo: 7) (poder: 1000) (defesa: 7000) (efeito: cartas iguais recebem + 1000 de dano por copia em campo)
+#<carta especial 2> Servidor (classe: especialista) (estilo de ataque: fisico) (custo: 7) (poder: 1000) (defesa: 7000) (efeito: cartas iguais recebem + 1000 de dano por copia em campo) (caracteristica: defensor)
 #<carta especial 3> H̶̩͂4̵̣̒k̸͙̋B̷̛͙0̷̯̂T̸̶͍͚́̿  (classe: especialista) (estilo de ataque: projetil) (custo : 6) (poder: 5000) (defesa: 4000) (efeito: ele pode alterar o valor dos atributos de poder e defesa de uma carta)
 #<carta especial 4> mecha <classe: especialista (estilo de ataque: fisico) (custo: 8) (poder: 8000) (defesa: 7000) (efeito: se autodestroi em  turnos)
 
-#<carta comum 1> gatorreta (classe: especialista) (estilo de ataque: projetil) (custo: 2) ( poder: 1000) (defesa: 3000) (efeito: restaura uma carta energia quando em campo)
-#<carta comum 2> rorai (classe: espadachim) (estilo de ataque: corte) (custo: 3) (poder: 4000) (defesa:2000) (efeito: quando ele for atacar ele pode bater 2x)
-#<carta comum 3> lectrabo (classe: especialista) (estilo de ataque: especial) (custo: 2) (poder: 3000) (defesa: 2000) (efeito: restaura 2 carta energia quando em campo)
-#<carta comum 4> tetabot (classe: especialista) (estilo de ataque: fisico) (custo: 3) (poder 4000) (defesa: 1000) 
+#<carta comum 1> gatorreta (classe: especialista) (estilo de ataque: projetil) (custo: 2) ( poder: 1000) (defesa: 3000) (efeito: restaura uma carta energia quando em campo) 'counter 1000' (caracteristica: defensor)
+#<carta comum 2> rorai (classe: espadachim) (estilo de ataque: corte) (custo: 3) (poder: 4000) (defesa:2000) (efeito: quando ele for atacar ele pode bater 2x) (caracteristica: apressado) 'counter 1000'
+#<carta comum 3> lectrabo (classe: especialista) (estilo de ataque: especial) (custo: 2) (poder: 3000) (defesa: 2000) (efeito: restaura 2 carta energia quando em campo) 'counter 1000'
+#<carta comum 4> tetabot (classe: especialista) (estilo de ataque: fisico) (custo: 3) (poder 4000) (defesa: 1000) 'counter 2000'
