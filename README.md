@@ -1,25 +1,25 @@
-## 🃏 Factions e Cartas (Card Database)
+##  Decks e Cartas (Card Database)
 
-### 🔮 Facção 1: Mágico
+### 🔮 Deck Roxo: Mágico
 
-#### 📜 Líder
+####  Líder
 * **Leader Rogen**
   * **Classe:** Mágico
   * **Estilo de Ataque:** Especial
   * **Poder:** 5000 | **Defesa:** 5000
   * **Efeito Ativo (Gatilho de Ataque):** Quando este Líder declarar um ataque e possuir pelo menos 3 Energias anexadas, podes olhar as 5 cartas do topo do teu baralho. Adiciona 1 dessas cartas à tua mão e coloca as restantes no fundo do baralho.
 
-#### 🏛️ Terreno
+####  Terreno
 * **A Grande Biblioteca**
   * **Classe:** Mágico | **Tipo:** Terreno
   * **Efeito Contínuo:** Todas as cartas da classe Mágico no campo ganham +1000 de Poder de Ataque.
 
-#### 🗡️ Itens
+####  Itens
 * **Tomo da Sabedoria**
   * **Classe:** Mágico | **Tipo:** Item
   * **Efeito:** Escolhe uma carta alvo. A carta escolhida passa a ter também a classe Mágico.
 
-#### 📜 Cartas de Efeito
+####  Cartas de Efeito
 * **Anular** (Custo: 4 Energias | Tipo: Reação / Interrupção)
   * **Efeito:** Se revelares ou previres uma Carta de Efeito no topo do baralho adversário, podes enviar essa carta diretamente para a Pilha de Descarte.
 * **Assembleia** (Custo: 2 Energias | Tipo: Reação - Counter)
@@ -29,7 +29,7 @@
 * **Canalizar** (Custo: 6 Energias | Tipo: Efeito Instantâneo)
   * **Efeito:** O personagem alvo ganha +6000 de Poder de Ataque durante este turno. No final do turno, envia esse personagem para a Pilha de Descarte.
 
-#### ⭐ Cartas Especiais
+####  Cartas Especiais
 * **Rodote** (Custo: 3 Energias | Poder: 4000 | Defesa: 5000 | Estilo: Especial)
   * **Efeito:** Podes olhar as 3 cartas do topo do baralho do oponente.
 * **Mabo** (Custo: 8 Energias | Poder: 7000 | Defesa: 3000 | Estilo: Especial)
@@ -52,26 +52,26 @@
 
 ---
 
-### 🛠️ Facção 2: Especialista
+### 🛠️ Deck Amarelo: Especialista
 
-#### 📜 Líder
+####  Líder
 * **Bobo**
   * **Classe:** Especialista
   * **Estilo de Ataque:** Projétil
   * **Poder:** 5000 | **Vida:** 2
   * **Efeito Passivo:** Podes jogar cartas de Custo 4 ou inferior sem pagar o custo de Energia. Para cartas de Custo 5 ou superior, o custo de Energia é reduzido à metade.
 
-#### 🏛️ Terreno
+####  Terreno
 * **Oficina**
   * **Classe:** Especialista | **Tipo:** Terreno
   * **Efeito Contínuo:** Todas as cartas aliadas em campo recebem +1000 de Vida máxima / Defesa.
 
-#### 🗡️ Itens
+####  Itens
 * **Chave Inglesa**
   * **Classe:** Especialista | **Tipo:** Item
   * **Efeito Contínuo:** O personagem equipado ganha +1000 de Vida / Defesa.
 
-#### 📜 Cartas de Efeito
+####  Cartas de Efeito
 * **Overclock** (Custo: 3 Energias | Tipo: Efeito Instantâneo)
   * **Efeito:** Concede +2000 de Poder de Ataque a todas as tuas cartas em campo até ao final do turno.
 * **Restaurar** (Custo: 5 Energias | Tipo: Efeito Instantâneo)
@@ -81,7 +81,7 @@
 * **Reiniciar** (Custo: 7 Energias | Tipo: Efeito Instantâneo)
   * **Efeito:** Restaura totalmente a Vida / Defesa de uma carta aliada ao valor máximo e concede-lhe +2000 de Poder de Ataque permanente.
 
-#### ⭐ Cartas Especiais
+####  Cartas Especiais
 * **Engibot** (Custo: 4 Energias | Poder: 4000 | Defesa: 3000 | Estilo: Físico)
   * **Efeito Ativo (1x por Turno):** Invoca 1 ficha de Torreta no campo com 1000 de Poder e 3000 de Defesa / Vida.
 * **Servidor** (Custo: 7 Energias | Poder: 1000 | Defesa: 7000 | Estilo: Físico)
@@ -92,7 +92,7 @@
 * **Mecha** (Custo: 8 Energias | Poder: 8000 | Defesa: 7000 | Estilo: Físico)
   * **Efeito Temporizado:** É destruído e enviado para a Pilha de Descarte automaticamente após X turnos em campo.
 
-#### 🃏 Cartas Comuns
+####  Cartas Comuns
 * **Gatorreta** (Custo: 2 Energias | Poder: 1000 | Defesa: 3000 | Counter: +1000 | Estilo: Projétil)
   * **Palavra-chave:** Defensor.
   * **Efeito:** Restaura 1 carta de Energia enquanto estiver em campo.
