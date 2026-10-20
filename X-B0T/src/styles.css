@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Telas baixas (celular deitado). */
+@custom-variant short (@media (max-height: 520px));
+
 @theme {
   --color-bg: #0c0d0b;
   --color-felt: #141612;
@@ -38,6 +41,15 @@
     background: var(--color-bg);
     color: var(--color-fg);
     font-family: var(--font-sans);
+  }
+  /* Toque: sem zoom de toque duplo, sem seleção de texto e sem "puxar" a página. */
+  body {
+    overscroll-behavior: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
@@ -283,6 +295,17 @@
   100% {
     opacity: 0;
     transform: translate(-50%, -50%) scale(1.04);
+  }
+}
+
+/* Celular em pé no navegador: pede para girar (o app Android já abre deitado). */
+.rotate-hint {
+  display: none;
+}
+
+@media (orientation: portrait) and (max-width: 700px) {
+  .rotate-hint {
+    display: flex;
   }
 }
 

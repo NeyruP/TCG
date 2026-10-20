@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">X-B0T</string>
+    <string name="title_activity_main">X-B0T</string>
+    <string name="package_name">com.neyrup.xb0t</string>
+    <string name="custom_url_scheme">com.neyrup.xb0t</string>
+</resources>

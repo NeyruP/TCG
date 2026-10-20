@@ -14,7 +14,7 @@ export function HomeScreen() {
       <div className="pointer-events-none absolute inset-0 opacity-70">
         <HeroCards />
       </div>
-      <div className="relative mx-auto flex min-h-dvh max-w-5xl flex-col justify-between gap-10 px-5 py-8 sm:px-8 sm:py-12">
+      <div className="relative mx-auto flex min-h-dvh max-w-5xl flex-col justify-between gap-10 px-5 py-8 sm:px-8 sm:py-12 short:gap-3 short:py-4">
         <header className="flex items-center justify-between gap-4">
           <p className="text-[11px] tracking-[0.28em] text-muted uppercase">
             Magia vs Máquina
@@ -29,22 +29,22 @@ export function HomeScreen() {
 
         <div className="max-w-xl">
           <p className="text-muted">TCG de duelo</p>
-          <h1 className="mt-2 font-display text-5xl leading-[0.92] font-semibold tracking-tight sm:text-7xl">
+          <h1 className="mt-2 font-display text-5xl leading-[0.92] font-semibold tracking-tight sm:text-7xl short:mt-1 short:text-5xl">
             X-B0T
           </h1>
-          <p className="mt-5 max-w-md text-base leading-relaxed text-fg/80">
+          <p className="mt-5 max-w-md text-base leading-relaxed text-fg/80 short:mt-2 short:text-sm">
             Arraste as cartas, jogue contra uma máquina que começa mansa e
             aprende com você. Feito para quem nunca sentou à mesa de um TCG.
           </p>
-          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:max-w-md">
-            <Button size="lg" className="w-full rounded-full" onClick={() => go("setup")}>
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:max-w-md sm:grid-cols-2 short:mt-4 short:max-w-2xl short:grid-cols-3">
+            <Button size="lg" className="w-full rounded-full whitespace-nowrap short:h-11 short:text-sm" onClick={() => go("setup")}>
               <Play className="size-4" />
               Partida rápida
             </Button>
             <Button
               size="lg"
               variant="secondary"
-              className="w-full rounded-full"
+              className="w-full rounded-full whitespace-nowrap short:h-11 short:text-sm"
               onClick={() => go("tutorial")}
             >
               <BookOpen className="size-4" />
@@ -53,7 +53,7 @@ export function HomeScreen() {
             <Button
               size="lg"
               variant="ghost"
-              className="w-full rounded-full sm:col-span-2"
+              className="w-full rounded-full whitespace-nowrap sm:col-span-2 short:col-span-1 short:h-11 short:text-sm"
               onClick={() => go("rules")}
             >
               <ScrollText className="size-4" />
@@ -62,7 +62,7 @@ export function HomeScreen() {
           </div>
         </div>
 
-        <footer className="flex flex-wrap gap-8 pt-4 text-sm text-muted">
+        <footer className="flex flex-wrap gap-8 pt-4 text-sm text-muted short:pt-0">
           <div>
             <p className="text-[11px] tracking-wide uppercase">Escola Arcana</p>
             <p className="mt-1 text-fg">{FACTION_META.magic.leader}</p>
@@ -104,20 +104,20 @@ export function SetupScreen() {
   const last = useGame((s) => s.progress.lastFaction);
 
   return (
-    <div className="felt min-h-dvh overflow-y-auto px-5 py-8 sm:px-10">
+    <div className="felt min-h-dvh overflow-y-auto px-5 py-8 sm:px-10 short:py-3">
       <button
         onClick={() => go("home")}
         className="text-xs tracking-[0.22em] text-muted uppercase"
       >
         X-B0T
       </button>
-      <h1 className="mt-8 font-display text-4xl sm:text-5xl">Escolha sua escola</h1>
-      <p className="mt-3 max-w-lg text-muted">
+      <h1 className="mt-8 font-display text-4xl sm:text-5xl short:mt-2 short:text-3xl">Escolha sua escola</h1>
+      <p className="mt-3 max-w-lg text-muted short:mt-1 short:max-w-3xl short:text-sm">
         Você joga com um baralho. A máquina pega o outro. As mãos mudam a cada
         partida — sempre cinco cartas, sempre com pelo menos um atacante. Não
         existem cartas de energia: ela chega sozinha a cada turno.
       </p>
-      <div className="mt-10 grid max-w-4xl gap-5 md:grid-cols-2">
+      <div className="mt-10 grid max-w-4xl gap-5 md:grid-cols-2 short:mt-3 short:grid-cols-2 short:gap-3">
         <DeckPick
           faction="magic"
           image="cards/rogen.jpg"
@@ -150,18 +150,18 @@ function DeckPick({
   return (
     <button
       onClick={onPick}
-      className="group flex gap-4 rounded-[28px] bg-surface p-4 text-left ring-1 ring-border transition-transform duration-150 hover:ring-border-strong active:scale-[0.98] sm:p-5"
+      className="group flex gap-4 rounded-[28px] bg-surface p-4 text-left ring-1 ring-border transition-transform duration-150 hover:ring-border-strong active:scale-[0.98] sm:p-5 short:gap-3 short:rounded-[20px] short:p-3"
     >
       <img
         src={image}
         alt={meta.leader}
-        className="h-36 w-[6.4rem] shrink-0 rounded-[14px] object-cover card-shadow sm:h-48 sm:w-[8.6rem]"
+        className="h-36 w-[6.4rem] shrink-0 rounded-[14px] object-cover card-shadow sm:h-48 sm:w-[8.6rem] short:h-32 short:w-[5.75rem]"
       />
       <div className="flex min-w-0 flex-col justify-between py-1">
         <div>
           <p className="text-[11px] tracking-wide text-muted uppercase">{meta.school}</p>
-          <h2 className="mt-1 font-display text-3xl">{meta.title}</h2>
-          <p className="mt-2 text-sm leading-relaxed text-fg/80">{meta.blurb}</p>
+          <h2 className="mt-1 font-display text-3xl short:text-2xl">{meta.title}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-fg/80 short:mt-1 short:text-xs">{meta.blurb}</p>
         </div>
         <p className="mt-3 text-sm text-accent">
           {preferred ? "Última escolha · " : ""}Jogar com {meta.leader}

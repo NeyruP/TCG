@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent, ReactNode, RefObject } from "react";
-import { BookOpen, Heart, Layers, ScrollText, Sparkles, Swords, Zap } from "lucide-react";
+import { BookOpen, Heart, Layers, ScrollText, SkipForward, Sparkles, Swords, Trash2, Zap } from "lucide-react";
 import { skillLabel } from "@/lib/game/ai";
 import { sfx } from "@/lib/game/audio";
 import { hasActivated, targetNeedFor as needOf } from "@/lib/game/cards";
@@ -77,6 +77,7 @@ export function Playmat({ tutorial }: { tutorial?: boolean }) {
   const [dropZone, setDropZone] = useState<string | null>(null);
   const suppressClick = useRef(false);
   const handW = useHandCardWidth();
+  const compact = useCompact();
 
   useEffect(() => {
     if (!toast) return;
@@ -299,32 +300,58 @@ export function Playmat({ tutorial }: { tutorial?: boolean }) {
 
   const selectedMine = selectedId ? me.field.find((c) => c.id === selectedId) : undefined;
 
+  const foeLeader = (w: number) => (
+    <LeaderBox
+      player={foe}
+      cardW={w}
+      compact={compact}
+      active={state.active === 1}
+      enemy
+      dropActive={dropZone === "enemy-leader"}
+      targetable={attackTargets.has(foe.leader.id)}
+      onEnter={() => hover(foe.leader.id)}
+      onLeave={() => hover(null)}
+      onClick={() => onEnemyCard(foe.leader, true)}
+    />
+  );
+  const myLeader = (w: number) => (
+    <LeaderBox
+      player={me}
+      cardW={w}
+      compact={compact}
+      active={state.active === 0}
+      selected={selectedId === me.leader.id}
+      ready={readyIds.has(me.leader.id)}
+      onEnter={() => hover(me.leader.id)}
+      onLeave={() => hover(null)}
+      onPointerDown={(e) => startDrag(e, me.leader.id, "leader")}
+      onClick={() => onMyCard(me.leader)}
+    />
+  );
+
   return (
-    <div data-board className="felt relative flex h-dvh min-h-0 flex-col overflow-hidden">
-      <TopBar tutorial={tutorial} onLeave={() => go("home")} />
+    <div
+      data-board
+      className="felt relative flex h-dvh min-h-0 flex-col overflow-hidden pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]"
+    >
+      <TopBar tutorial={tutorial} compact={compact} onLeave={() => go("home")} />
 
       <div className="flex min-h-0 flex-1">
         <Inspector card={inspected} owner={inspectedOwner} />
 
-        <main className="relative flex min-w-0 flex-1 flex-col px-2 sm:px-3">
-          {/* Oponente: líder, mão virada e pilhas */}
-          <div className="flex shrink-0 items-center gap-3 py-1.5">
-            <LeaderBox
-              player={foe}
-              cardW={handW}
-              active={state.active === 1}
-              enemy
-              dropActive={dropZone === "enemy-leader"}
-              targetable={attackTargets.has(foe.leader.id)}
-              onEnter={() => hover(foe.leader.id)}
-              onLeave={() => hover(null)}
-              onClick={() => onEnemyCard(foe.leader, true)}
-            />
-            <OppHand count={foe.hand.length} />
-          </div>
+        <main className="relative flex min-w-0 flex-1 flex-col px-1.5 sm:px-3">
+          {/* Oponente: líder, mão virada e pilhas (no celular o líder vai para a linha do campo) */}
+          {!compact && (
+            <div className="flex shrink-0 items-center gap-3 py-1.5">
+              {foeLeader(handW)}
+              <OppHand count={foe.hand.length} />
+            </div>
+          )}
 
           <FieldRow
             player={foe}
+            compact={compact}
+            leading={compact ? (w) => foeLeader(w) : undefined}
             active={state.active === 1}
             enemy
             dropActive={dropZone}
@@ -334,10 +361,12 @@ export function Playmat({ tutorial }: { tutorial?: boolean }) {
             onClick={(c) => onEnemyCard(c, false)}
           />
 
-          <CenterLine hint={hint} />
+          <CenterLine hint={hint} compact={compact} />
 
           <FieldRow
             player={me}
+            compact={compact}
+            leading={compact ? (w) => myLeader(w) : undefined}
             active={state.active === 0}
             dropActive={dropZone}
             selectedId={selectedId}
@@ -348,19 +377,14 @@ export function Playmat({ tutorial }: { tutorial?: boolean }) {
             onClick={onMyCard}
           />
 
-          {/* Você: líder, mão e pilhas */}
-          <div className="flex shrink-0 items-end gap-3 pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-            <LeaderBox
-              player={me}
-              cardW={handW}
-              active={state.active === 0}
-              selected={selectedId === me.leader.id}
-              ready={readyIds.has(me.leader.id)}
-              onEnter={() => hover(me.leader.id)}
-              onLeave={() => hover(null)}
-              onPointerDown={(e) => startDrag(e, me.leader.id, "leader")}
-              onClick={() => onMyCard(me.leader)}
-            />
+          {/* Você: líder e mão */}
+          <div
+            className={cn(
+              "flex shrink-0 items-end gap-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]",
+              compact ? "pt-0.5 pb-1" : "pt-1",
+            )}
+          >
+            {!compact && myLeader(handW)}
             <HandRail
               state={state}
               cardW={handW}
@@ -378,6 +402,7 @@ export function Playmat({ tutorial }: { tutorial?: boolean }) {
 
         <ActionRail
           state={state}
+          compact={compact}
           myTurn={myTurn}
           aiBusy={aiBusy}
           onMain={toMain}
@@ -389,10 +414,17 @@ export function Playmat({ tutorial }: { tutorial?: boolean }) {
       </div>
 
       {inspected && (
-        <div className="pointer-events-none absolute top-12 left-1/2 z-20 w-max max-w-[60%] -translate-x-1/2 xl:hidden">
-          <div className="rounded-[16px] bg-surface/95 p-2.5 ring-1 ring-border">
-            <p className="font-display text-base leading-tight">{inspected.name}</p>
-            <p className="mt-0.5 text-[11px] leading-snug text-fg/75">{inspected.ability}</p>
+        <div
+          className={cn(
+            "pointer-events-none absolute left-1/2 z-20 w-max -translate-x-1/2 xl:hidden",
+            compact ? "top-0.5 max-w-[56%]" : "top-12 max-w-[60%]",
+          )}
+        >
+          <div className={cn("rounded-[14px] bg-surface/95 ring-1 ring-border", compact ? "px-2.5 py-1.5" : "p-2.5")}>
+            <p className={cn("font-display leading-tight", compact ? "text-sm" : "text-base")}>{inspected.name}</p>
+            <p className={cn("mt-0.5 leading-snug text-fg/75", compact ? "text-[10px]" : "text-[11px]")}>
+              {inspected.ability}
+            </p>
           </div>
         </div>
       )}
@@ -407,8 +439,13 @@ export function Playmat({ tutorial }: { tutorial?: boolean }) {
       )}
 
       {targetingCard && (
-        <div className="absolute inset-x-0 top-12 z-30 flex justify-center px-3">
-          <div className="flex items-center gap-3 rounded-full bg-surface/95 py-1.5 pr-1.5 pl-4 text-sm ring-1 ring-accent/50">
+        <div className={cn("absolute inset-x-0 z-30 flex justify-center px-3", compact ? "top-1" : "top-12")}>
+          <div
+            className={cn(
+              "flex items-center gap-3 rounded-full bg-surface/95 py-1.5 pr-1.5 pl-4 ring-1 ring-accent/50",
+              compact ? "text-xs" : "text-sm",
+            )}
+          >
             <span>
               {targeting?.mode === "ability"
                 ? `Escolha a unidade que ${targetingCard.name} vai hackear`
@@ -422,8 +459,18 @@ export function Playmat({ tutorial }: { tutorial?: boolean }) {
       )}
 
       {toast && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-44 z-40 flex justify-center px-4">
-          <div className="max-w-md rounded-2xl bg-surface px-4 py-2.5 text-center text-sm ring-1 ring-amber-300/40 shadow-xl">
+        <div
+          className={cn(
+            "pointer-events-none absolute inset-x-0 z-40 flex justify-center px-4",
+            compact ? "bottom-24" : "bottom-44",
+          )}
+        >
+          <div
+            className={cn(
+              "max-w-md rounded-2xl bg-surface text-center ring-1 ring-amber-300/40 shadow-xl",
+              compact ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm",
+            )}
+          >
             {toast}
           </div>
         </div>
@@ -434,20 +481,20 @@ export function Playmat({ tutorial }: { tutorial?: boolean }) {
           className="absolute inset-0 z-40 flex items-center justify-center bg-bg/75 px-4"
           onClick={closeReveal}
         >
-          <div className="max-w-xl rounded-[28px] bg-surface p-6 ring-1 ring-border">
-            <p className="font-display text-2xl">{state.reveal.title}</p>
+          <div className={cn("max-w-xl rounded-[28px] bg-surface ring-1 ring-border", compact ? "p-4" : "p-6")}>
+            <p className={cn("font-display", compact ? "text-xl" : "text-2xl")}>{state.reveal.title}</p>
             <p className="mt-1 text-sm text-muted">{state.reveal.reason}</p>
-            <div className="mt-4 flex flex-wrap justify-center gap-3">
+            <div className={cn("flex flex-wrap justify-center gap-3", compact ? "mt-2" : "mt-4")}>
               {state.reveal.cards.map((c) => (
-                <CardView key={c.id} card={c} size="lg" />
+                <CardView key={c.id} card={c} size={compact ? "md" : "lg"} />
               ))}
             </div>
-            <p className="mt-4 text-center text-xs text-muted">Toque para fechar</p>
+            <p className={cn("text-center text-xs text-muted", compact ? "mt-2" : "mt-4")}>Toque para fechar</p>
           </div>
         </button>
       )}
 
-      {state.pending && state.pending.player === 0 && <PendingDialog state={state} />}
+      {state.pending && state.pending.player === 0 && <PendingDialog state={state} compact={compact} />}
 
       <FxLayer />
     </div>
@@ -513,14 +560,27 @@ function hintText(
   return "Jogue cartas da mão. Quando terminar, clique em Passar turno.";
 }
 
-function TopBar({ tutorial, onLeave }: { tutorial?: boolean; onLeave: () => void }) {
+function TopBar({
+  tutorial,
+  compact,
+  onLeave,
+}: {
+  tutorial?: boolean;
+  compact: boolean;
+  onLeave: () => void;
+}) {
   const state = useGame((s) => s.state)!;
   const skill = useGame((s) => s.skill);
   const me = state.players[0];
   const foe = state.players[1];
   const mine = state.active === 0;
   return (
-    <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border/60 px-3 py-2 sm:px-5">
+    <header
+      className={cn(
+        "flex shrink-0 items-center justify-between gap-3 border-b border-border/60",
+        compact ? "px-3 py-1 text-[11px]" : "px-3 py-2 sm:px-5",
+      )}
+    >
       <button
         onClick={onLeave}
         className="font-display text-sm font-semibold tracking-[0.2em] text-muted uppercase hover:text-fg"
@@ -538,15 +598,15 @@ function TopBar({ tutorial, onLeave }: { tutorial?: boolean; onLeave: () => void
           {mine ? "Sua vez" : "Vez da máquina"}
           <span className="hidden font-normal sm:inline"> · {phaseLabel(state.phase)}</span>
         </span>
-        {!tutorial && (
+        {!tutorial && !compact && (
           <span className="hidden text-muted md:inline">Máquina: {skillLabel(skill)}</span>
         )}
       </div>
       <div className="flex items-center gap-3 text-xs text-muted">
-        <span className="hidden sm:inline">Você</span>
+        <span className={compact ? "hidden" : "hidden sm:inline"}>Você</span>
         <ResourcePair life={me.life.length} energy={me.energy} />
         <span className="text-subtle">|</span>
-        <span className="hidden sm:inline">Máquina</span>
+        <span className={compact ? "hidden" : "hidden sm:inline"}>Máquina</span>
         <ResourcePair life={foe.life.length} energy={foe.energy} />
       </div>
     </header>
@@ -632,6 +692,7 @@ function InfoCell({ label, value }: { label: string; value: ReactNode }) {
 function LeaderBox({
   player,
   cardW,
+  compact,
   active,
   enemy,
   selected,
@@ -645,6 +706,7 @@ function LeaderBox({
 }: {
   player: PlayerState;
   cardW: number;
+  compact?: boolean;
   active: boolean;
   enemy?: boolean;
   selected?: boolean;
@@ -658,7 +720,7 @@ function LeaderBox({
 }) {
   const lives = player.life.length;
   return (
-    <div className="flex shrink-0 items-center gap-2.5">
+    <div className={cn("flex shrink-0 items-center", compact ? "gap-1.5" : "gap-2.5")}>
       <div
         data-drop={enemy ? "enemy-leader" : undefined}
         className={cn("rounded-[12px] p-0.5", dropActive ? "bg-red-500/25 ring-2 ring-red-400" : "")}
@@ -680,6 +742,24 @@ function LeaderBox({
           onClick={onClick}
         />
       </div>
+      {compact ? (
+        <div className="flex flex-col gap-1 text-[11px] font-semibold tabular">
+          <span className="flex items-center gap-0.5 text-rose-200" title="Vidas">
+            <Heart className="size-3 fill-rose-500 text-rose-400" />
+            {lives}
+          </span>
+          <span className="flex items-center gap-0.5 text-yellow-200" title="Energia">
+            <Zap className="size-3" />
+            {player.energy}
+          </span>
+          {enemy && (
+            <span className="flex items-center gap-0.5 text-muted" title="Cartas na mão">
+              <Layers className="size-3" />
+              {player.hand.length}
+            </span>
+          )}
+        </div>
+      ) : (
       <div className="flex flex-col gap-1.5">
         <p className="text-[10px] tracking-wide text-muted uppercase">{enemy ? "Máquina" : "Você"}</p>
         <div className="flex max-w-[5.5rem] flex-wrap gap-0.5" title={`${lives} vida(s)`}>
@@ -702,6 +782,7 @@ function LeaderBox({
           <span className="tabular">{player.energy}</span>
         </span>
       </div>
+      )}
     </div>
   );
 }
@@ -723,7 +804,21 @@ function OppHand({ count }: { count: number }) {
   );
 }
 
-function Piles({ player }: { player: PlayerState }) {
+function Piles({ player, compact }: { player: PlayerState; compact?: boolean }) {
+  if (compact) {
+    return (
+      <div className="flex shrink-0 flex-col gap-1 text-[10px] font-semibold text-muted tabular">
+        <span className="flex items-center gap-1" title="Baralho">
+          <Layers className="size-3" />
+          {player.deck.length}
+        </span>
+        <span className="flex items-center gap-1" title="Descarte">
+          <Trash2 className="size-3" />
+          {player.grave.length}
+        </span>
+      </div>
+    );
+  }
   return (
     <div className="flex shrink-0 items-start gap-2.5">
       <MiniPile count={player.deck.length} label="Baralho" facedown />
@@ -732,7 +827,28 @@ function Piles({ player }: { player: PlayerState }) {
   );
 }
 
-function TerrainSlot({ card, onHover }: { card: CardInstance | null; onHover: (id: string | null) => void }) {
+function TerrainSlot({
+  card,
+  compact,
+  onHover,
+}: {
+  card: CardInstance | null;
+  compact?: boolean;
+  onHover: (id: string | null) => void;
+}) {
+  if (compact) {
+    if (!card) return null;
+    return (
+      <CardView
+        card={card}
+        size="xs"
+        anchor
+        className="card-enter"
+        onEnter={() => onHover(card.id)}
+        onLeave={() => onHover(null)}
+      />
+    );
+  }
   return (
     <div className="flex shrink-0 flex-col items-center gap-1">
       {card ? (
@@ -761,6 +877,8 @@ function TerrainSlot({ card, onHover }: { card: CardInstance | null; onHover: (i
 
 function FieldRow({
   player,
+  compact,
+  leading,
   active,
   enemy,
   dropActive,
@@ -772,6 +890,9 @@ function FieldRow({
   onClick,
 }: {
   player: PlayerState;
+  compact?: boolean;
+  /** No celular, o líder fica no começo da linha do campo. */
+  leading?: (cardW: number) => ReactNode;
   /** É o turno deste jogador (só então "já atacou" escurece a carta). */
   active: boolean;
   enemy?: boolean;
@@ -788,7 +909,7 @@ function FieldRow({
   const { w, h } = useSize(unitsRef);
   // As cartas do campo se ajustam ao espaço livre (largura e altura) sem quebrar linha.
   const n = Math.max(cards.length, 1);
-  const byH = (h - 16) * RATIO;
+  const byH = (h - (compact ? 4 : 16)) * RATIO;
   const byW = (w - 10 * (n - 1)) / n;
   const cardW = Math.floor(Math.max(54, Math.min(124, byH, byW)));
   const size = cardW >= 80 ? "md" : "sm";
@@ -796,15 +917,20 @@ function FieldRow({
     <div
       data-drop={enemy ? undefined : "field"}
       className={cn(
-        "relative flex min-h-0 flex-1 items-center gap-3 rounded-[18px] px-3 py-2 ring-1 transition-colors",
+        "relative flex min-h-0 flex-1 items-center rounded-[18px] ring-1 transition-colors",
+        compact ? "gap-1.5 px-1.5 py-1" : "gap-3 px-3 py-2",
         enemy ? "bg-red-950/10" : "bg-emerald-950/10",
         !enemy && dropActive === "field" ? "bg-accent/10 ring-accent/50" : "ring-border/60",
       )}
     >
-      <TerrainSlot card={player.terrain} onHover={onHover} />
+      {leading?.(Math.min(cardW, 72))}
+      <TerrainSlot card={player.terrain} compact={compact} onHover={onHover} />
       <div
         ref={unitsRef}
-        className="relative flex min-w-0 flex-1 items-center justify-center gap-2.5 self-stretch pb-3"
+        className={cn(
+          "relative flex min-w-0 flex-1 items-center justify-center self-stretch",
+          compact ? "gap-1.5" : "gap-2.5 pb-3",
+        )}
       >
         {cards.length === 0 && (
           <span className="text-[11px] tracking-wide text-subtle uppercase">
@@ -838,20 +964,29 @@ function FieldRow({
             </div>
           );
         })}
-        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[9px] tracking-wide text-subtle uppercase tabular">
-          Personagens {cards.length}/{MAX_FIELD}
-        </span>
+        {!compact && (
+          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[9px] tracking-wide text-subtle uppercase tabular">
+            Personagens {cards.length}/{MAX_FIELD}
+          </span>
+        )}
       </div>
-      <Piles player={player} />
+      <Piles player={player} compact={compact} />
     </div>
   );
 }
 
-function CenterLine({ hint }: { hint: ReactNode }) {
+function CenterLine({ hint, compact }: { hint: ReactNode; compact?: boolean }) {
   return (
-    <div className="flex shrink-0 items-center gap-3 py-1.5">
+    <div className={cn("flex shrink-0 items-center gap-3", compact ? "py-0.5" : "py-1.5")}>
       <div className="h-px flex-1 bg-gradient-to-r from-transparent to-border-strong" />
-      <p className="max-w-[78%] text-center text-[11px] leading-snug text-fg/85 sm:text-xs">{hint}</p>
+      <p
+        className={cn(
+          "max-w-[82%] text-center leading-snug text-fg/85",
+          compact ? "truncate text-[10px]" : "text-[11px] sm:text-xs",
+        )}
+      >
+        {hint}
+      </p>
       <div className="h-px flex-1 bg-gradient-to-l from-transparent to-border-strong" />
     </div>
   );
@@ -875,9 +1010,25 @@ function useSize(ref: RefObject<HTMLElement | null>) {
   return size;
 }
 
+/** Tela baixa (celular deitado): a mesa usa o layout compacto. */
+export function useCompact() {
+  const calc = () => window.innerHeight < 520;
+  const [compact, setCompact] = useState(calc);
+  useEffect(() => {
+    const on = () => setCompact(calc());
+    window.addEventListener("resize", on);
+    return () => window.removeEventListener("resize", on);
+  }, []);
+  return compact;
+}
+
 /** Largura das cartas da mão e dos líderes, proporcional à altura da janela. */
 function useHandCardWidth() {
-  const calc = () => Math.round(Math.min(112, Math.max(70, window.innerHeight * 0.13)));
+  const calc = () => {
+    const h = window.innerHeight;
+    if (h < 520) return Math.round(Math.min(68, Math.max(52, h * 0.18)));
+    return Math.round(Math.min(112, Math.max(70, h * 0.13)));
+  };
   const [w, setW] = useState(calc);
   useEffect(() => {
     const on = () => setW(calc());
@@ -971,6 +1122,7 @@ function HandRail({
 
 function ActionRail({
   state,
+  compact,
   myTurn,
   aiBusy,
   onMain,
@@ -980,6 +1132,7 @@ function ActionRail({
   onActivate,
 }: {
   state: GameState;
+  compact: boolean;
   myTurn: boolean;
   aiBusy: boolean;
   onMain: () => void;
@@ -994,6 +1147,51 @@ function ActionRail({
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: "smooth" });
   }, [state.log.length]);
+
+  if (compact) {
+    // Celular: coluna estreita com ícone + rótulo curto, sem histórico.
+    const btn = "h-auto w-full flex-col gap-0.5 rounded-[10px] px-1 py-1.5 text-[10px] leading-none";
+    return (
+      <aside className="flex w-[4.25rem] shrink-0 flex-col justify-end gap-1.5 border-l border-border/60 p-1.5">
+        <p className="text-center text-[9px] leading-tight text-muted">
+          {aiBusy ? "Máquina pensando…" : myTurn ? "Sua vez" : "Aguarde"}
+        </p>
+        <Button
+          variant={phase === "MAIN" ? "primary" : "secondary"}
+          className={btn}
+          disabled={!myTurn}
+          onClick={onMain}
+        >
+          <BookOpen className="size-4" />
+          Jogar
+        </Button>
+        <Button
+          variant={phase === "ATTACK" ? "primary" : "secondary"}
+          className={btn}
+          disabled={!myTurn || noAttackYet}
+          onClick={onAttack}
+        >
+          <Swords className="size-4" />
+          {noAttackYet ? "Turno 3" : "Atacar"}
+        </Button>
+        {ability && (
+          <Button
+            variant="secondary"
+            className={btn}
+            disabled={!myTurn || ability.usedActivated}
+            onClick={onActivate}
+          >
+            <Sparkles className="size-4" />
+            <span className="tracking-tight">Habilidade</span>
+          </Button>
+        )}
+        <Button variant="danger" className={btn} disabled={!myTurn} onClick={onEnd}>
+          <SkipForward className="size-4" />
+          Passar
+        </Button>
+      </aside>
+    );
+  }
 
   return (
     <aside className="flex w-[4.75rem] shrink-0 flex-col gap-2 border-l border-border/60 p-2 sm:w-44 sm:p-3 2xl:w-52">
@@ -1053,11 +1251,14 @@ function ActionRail({
 // Janela de decisões (Counter, Rogen, Bomia)
 // ============================================================
 
-function PendingDialog({ state }: { state: GameState }) {
+function PendingDialog({ state, compact }: { state: GameState; compact: boolean }) {
   const answerCounter = useGame((s) => s.answerCounter);
   const answerPick = useGame((s) => s.answerPick);
   const answerBomia = useGame((s) => s.answerBomia);
   const pend = state.pending!;
+  const cardSize = compact ? "md" : "lg";
+  const gapTop = compact ? "mt-2" : "mt-5";
+  const title = cn("mt-1 font-display", compact ? "text-xl" : "text-3xl");
   const me = state.players[0];
 
   let body: ReactNode = null;
@@ -1077,7 +1278,7 @@ function PendingDialog({ state }: { state: GameState }) {
       body = (
         <>
           <p className="text-[11px] tracking-[0.2em] text-red-300 uppercase">Você está sendo atacado</p>
-          <h2 className="mt-1 font-display text-3xl">
+          <h2 className={title}>
             {attacker.name} ataca {target.name}!
           </h2>
           <p className="mt-2 text-sm text-fg/80">
@@ -1085,18 +1286,18 @@ function PendingDialog({ state }: { state: GameState }) {
             {target.counter > 0 ? ` (inclui Counter +${target.counter})` : ""}. Sem reação,{" "}
             {target.name} {outcome(0)}.
           </p>
-          <div className="mt-5 flex flex-wrap items-end justify-center gap-4">
+          <div className={cn(gapTop, "flex flex-wrap items-end justify-center gap-4")}>
             <div className="flex flex-col items-center gap-1">
-              <CardView card={attacker} size="lg" stats={statsOf(attacker, foe)} />
+              <CardView card={attacker} size={cardSize} stats={statsOf(attacker, foe)} />
               <span className="text-xs text-red-300">Atacante</span>
             </div>
-            <Swords className="mb-24 size-8 text-red-400" />
+            <Swords className={cn("size-8 text-red-400", compact ? "mb-12" : "mb-24")} />
             <div className="flex flex-col items-center gap-1">
-              <CardView card={target} size="lg" stats={statsOf(target, me)} />
+              <CardView card={target} size={cardSize} stats={statsOf(target, me)} />
               <span className="text-xs text-emerald-300">Seu aliado</span>
             </div>
           </div>
-          <div className="mt-5 flex flex-wrap justify-center gap-2">
+          <div className={cn(gapTop, "flex flex-wrap justify-center gap-2")}>
             {options.map((c) => (
               <Button key={c.id} onClick={() => answerCounter(c.id)}>
                 Usar {c.name} ({effectiveCost(c, me)} ⚡) — {target.name} {outcome(3000)}
@@ -1113,20 +1314,20 @@ function PendingDialog({ state }: { state: GameState }) {
     body = (
       <>
         <p className="text-[11px] tracking-[0.2em] text-amber-200 uppercase">Habilidade do líder</p>
-        <h2 className="mt-1 font-display text-3xl">{pend.title}</h2>
+        <h2 className={title}>{pend.title}</h2>
         <p className="mt-2 text-sm text-fg/80">{pend.reason}</p>
-        <div className="mt-5 flex flex-wrap justify-center gap-3">
+        <div className={cn(gapTop, "flex flex-wrap justify-center gap-3")}>
           {pend.cards.map((c) => (
             <button
               key={c.id}
               className="rounded-[12px] transition-transform hover:-translate-y-1"
               onClick={() => answerPick(c.id)}
             >
-              <CardView card={c} size="lg" />
+              <CardView card={c} size={cardSize} />
             </button>
           ))}
         </div>
-        <div className="mt-5 flex justify-center">
+        <div className={cn(gapTop, "flex justify-center")}>
           <Button variant="secondary" onClick={() => answerPick(null)}>
             Não pegar nenhuma
           </Button>
@@ -1137,14 +1338,14 @@ function PendingDialog({ state }: { state: GameState }) {
     body = (
       <>
         <p className="text-[11px] tracking-[0.2em] text-pink-300 uppercase">Efeito da Bomia</p>
-        <h2 className="mt-1 font-display text-3xl">Você comprou {pend.card.name}</h2>
+        <h2 className={title}>Você comprou {pend.card.name}</h2>
         <p className="mt-2 text-sm text-fg/80">
           Pode colocar a carta virada na sua Zona de Vida (+1 vida) em vez de ficar com ela na mão.
         </p>
-        <div className="mt-5 flex justify-center">
-          <CardView card={pend.card} size="lg" />
+        <div className={cn(gapTop, "flex justify-center")}>
+          <CardView card={pend.card} size={cardSize} />
         </div>
-        <div className="mt-5 flex flex-wrap justify-center gap-2">
+        <div className={cn(gapTop, "flex flex-wrap justify-center gap-2")}>
           <Button onClick={() => answerBomia(true)}>
             <Heart className="size-4" /> Zona de Vida (+1 vida)
           </Button>
@@ -1158,7 +1359,12 @@ function PendingDialog({ state }: { state: GameState }) {
 
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-[2px]">
-      <div className="max-h-[92dvh] w-full max-w-2xl overflow-y-auto rounded-[28px] bg-surface p-6 text-center ring-1 ring-border shadow-2xl">
+      <div
+        className={cn(
+          "max-h-[96dvh] w-full overflow-y-auto rounded-[28px] bg-surface text-center ring-1 ring-border shadow-2xl",
+          compact ? "max-w-3xl p-3" : "max-w-2xl p-6",
+        )}
+      >
         {body}
       </div>
     </div>

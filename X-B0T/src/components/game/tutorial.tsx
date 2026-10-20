@@ -66,14 +66,14 @@ export function TutorialScreen() {
   return (
     <div className="relative">
       <Playmat tutorial />
-      <div className="pointer-events-none absolute inset-x-0 top-12 z-20 flex justify-center px-3">
-        <div className="pointer-events-auto w-full max-w-lg rounded-[22px] bg-surface/95 p-4 shadow-2xl ring-1 ring-amber-200/30 sm:p-5">
+      <div className="pointer-events-none absolute inset-x-0 top-12 z-20 flex justify-center px-3 short:top-6">
+        <div className="pointer-events-auto w-full max-w-lg rounded-[22px] bg-surface/95 p-4 shadow-2xl ring-1 ring-amber-200/30 sm:p-5 short:max-w-xl short:rounded-[16px] short:p-2.5">
           <p className="text-[11px] tracking-wide text-muted uppercase">
             Tutorial {step + 1}/{STEPS.length}
           </p>
-          <h2 className="mt-1 font-display text-2xl">{current.title}</h2>
-          <p className="mt-2 text-sm leading-relaxed text-fg/85">{current.body}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <h2 className="mt-1 font-display text-2xl short:mt-0 short:text-lg">{current.title}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-fg/85 short:mt-1 short:text-xs">{current.body}</p>
+          <div className="mt-4 flex flex-wrap gap-2 short:mt-2">
             {!last && (
               <Button size="sm" variant="secondary" onClick={() => setTutorialStep(step + 1)}>
                 Pular este passo
