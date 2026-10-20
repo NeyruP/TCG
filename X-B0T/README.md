@@ -12,6 +12,10 @@ Versão do jogo X-B0T (a mesma base do link do Drive em `Feira de ciencias/X-B0T
 
 Abra **`JOGAR.html`** com dois cliques (ou `INICIAR.bat` no Windows). Não precisa instalar nada; a pasta `cards/` precisa ficar ao lado do arquivo.
 
+## Versão Android (Play Store)
+
+O jogo também é um app Android (pasta `android/`, feito com Capacitor): abre deitado, em tela cheia e funciona offline. O GitHub Actions gera o APK de teste e o `.aab` da Play Store a cada alteração. O passo a passo para publicar, os textos da loja, o ícone, o gráfico de destaque e as capturas de tela estão em [`play-store/`](play-store/PUBLICAR.md).
+
 ## Regras rápidas
 
 | Tema | Regra |
@@ -41,4 +45,7 @@ O código mantém a estrutura do X-B0T (`src/lib/game` para regras, cartas e má
 npm install
 npm run dev      # abre em http://localhost:5173
 npm run build    # gera JOGAR.html (arquivo único, funciona offline)
+npm run android  # build + copia o jogo para o projeto Android (android/)
 ```
+
+Para abrir o projeto Android no computador, use o Android Studio na pasta `android/` depois de `npm run android`.

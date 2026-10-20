@@ -18,15 +18,15 @@ jobs:
       run:
         working-directory: X-B0T
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: X-B0T/package-lock.json
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
@@ -59,13 +59,27 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: ./gradlew --no-daemon assembleDebug bundleRelease
 
-      - uses: actions/upload-artifact@v4
+      - name: Conferir o APK e o AAB
+        working-directory: X-B0T/android/app/build/outputs
+        run: |
+          AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)
+          "$AAPT2" dump badging apk/debug/app-debug.apk | grep -E "^package:|sdkVersion|targetSdkVersion|application-label:|launchable-activity"
+          "$AAPT2" dump xmltree --file AndroidManifest.xml apk/debug/app-debug.apk | grep -A1 "screenOrientation"
+          unzip -l apk/debug/app-debug.apk | grep -q "assets/public/index.html" || { echo "::error::index.html do jogo não está no APK"; exit 1; }
+          CARTAS=$(unzip -l apk/debug/app-debug.apk | grep -c "assets/public/cards/.*\.jpg")
+          echo "Imagens de cartas no APK: $CARTAS"
+          [ "$CARTAS" -ge 31 ] || { echo "::error::Faltam imagens de cartas no APK"; exit 1; }
+          if [ -n "$ANDROID_KEYSTORE_FILE" ]; then
+            jarsigner -verify bundle/release/app-release.aab | tail -1
+          fi
+
+      - uses: actions/upload-artifact@v5
         with:
           name: X-B0T-apk-teste
           path: X-B0T/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: X-B0T-play-store-aab
           path: X-B0T/android/app/build/outputs/bundle/release/app-release.aab

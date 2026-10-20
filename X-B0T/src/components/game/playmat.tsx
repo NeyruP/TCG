@@ -417,15 +417,19 @@ export function Playmat({ tutorial }: { tutorial?: boolean }) {
         <div
           className={cn(
             "pointer-events-none absolute left-1/2 z-20 w-max -translate-x-1/2 xl:hidden",
-            compact ? "top-0.5 max-w-[56%]" : "top-12 max-w-[60%]",
+            compact ? "top-0.5 max-w-[62%]" : "top-12 max-w-[60%]",
           )}
         >
-          <div className={cn("rounded-[14px] bg-surface/95 ring-1 ring-border", compact ? "px-2.5 py-1.5" : "p-2.5")}>
-            <p className={cn("font-display leading-tight", compact ? "text-sm" : "text-base")}>{inspected.name}</p>
-            <p className={cn("mt-0.5 leading-snug text-fg/75", compact ? "text-[10px]" : "text-[11px]")}>
-              {inspected.ability}
+          {compact ? (
+            <p className="line-clamp-2 rounded-[10px] bg-surface/95 px-2.5 py-1 text-[10px] leading-snug text-fg/80 ring-1 ring-border">
+              <b className="text-fg">{inspected.name}:</b> {inspected.ability}
             </p>
-          </div>
+          ) : (
+            <div className="rounded-[14px] bg-surface/95 p-2.5 ring-1 ring-border">
+              <p className="font-display text-base leading-tight">{inspected.name}</p>
+              <p className="mt-0.5 text-[11px] leading-snug text-fg/75">{inspected.ability}</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -1267,9 +1271,11 @@ function PendingDialog({ state, compact }: { state: GameState; compact: boolean 
     const attacker =
       foe.leader.id === pend.attackerId ? foe.leader : foe.field.find((c) => c.id === pend.attackerId);
     const target = me.field.find((c) => c.id === pend.targetId);
+    // Um botão por tipo de carta (duas Assembleias fazem a mesma coisa).
     const options = pend.options
       .map((id) => me.hand.find((c) => c.id === id))
-      .filter((c): c is CardInstance => !!c);
+      .filter((c): c is CardInstance => !!c)
+      .filter((c, i, all) => all.findIndex((o) => o.defId === c.defId) === i);
     if (attacker && target) {
       const atk = atkTotal(attacker, foe);
       const def = defNow(target, me) + target.counter;

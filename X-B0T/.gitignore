@@ -1,2 +1,6 @@
 node_modules/
 dist/
+
+# Chave de assinatura nunca vai para o repositório
+*.jks
+*.keystore
