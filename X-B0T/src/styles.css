@@ -1,0 +1,297 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0c0d0b;
+  --color-felt: #141612;
+  --color-felt-deep: #0e100d;
+  --color-surface: #1a1c18;
+  --color-surface-2: #22241f;
+  --color-fg: #eceae4;
+  --color-muted: #8d8f86;
+  --color-subtle: #6a6c64;
+  --color-border: color-mix(in oklab, var(--color-fg) 12%, transparent);
+  --color-border-strong: color-mix(in oklab, var(--color-fg) 24%, transparent);
+  --color-accent: #d2cec4;
+  --color-accent-fg: #0c0d0b;
+  --color-danger: #b4554a;
+  --color-ok: #7d9a6c;
+  --color-ink: #1c1d22;
+  --font-display: "Cormorant Garamond", "Times New Roman", serif;
+  --font-sans: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  html,
+  body,
+  #app {
+    min-height: 100%;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    font-family: var(--font-display);
+    font-variant-numeric: lining-nums;
+  }
+  .font-display {
+    font-variant-numeric: lining-nums;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+.felt {
+  background-color: var(--color-felt-deep);
+  background-image:
+    radial-gradient(ellipse at 50% 30%, #1c2018 0%, transparent 58%),
+    radial-gradient(ellipse at 50% 120%, #0a0b09 0%, transparent 50%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgb(255 255 255 / 0.012) 2px,
+      rgb(255 255 255 / 0.012) 3px
+    );
+}
+
+.card-shadow {
+  box-shadow:
+    0 10px 24px rgb(0 0 0 / 0.45),
+    0 2px 4px rgb(0 0 0 / 0.4);
+}
+
+.card-shadow-lift {
+  box-shadow:
+    0 22px 40px rgb(0 0 0 / 0.55),
+    0 4px 10px rgb(0 0 0 / 0.35);
+}
+
+.tabular {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* ---------- Destaques: quem pode atacar / alvos válidos ---------- */
+
+.ready-glow {
+  animation: ready-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes ready-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px rgb(252 211 77 / 0.75),
+      0 0 10px 1px rgb(252 211 77 / 0.25),
+      0 10px 24px rgb(0 0 0 / 0.45);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgb(252 211 77 / 1),
+      0 0 22px 4px rgb(252 211 77 / 0.5),
+      0 10px 24px rgb(0 0 0 / 0.45);
+  }
+}
+
+.target-glow {
+  animation: target-pulse 1s ease-in-out infinite;
+}
+
+@keyframes target-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px rgb(248 113 113 / 0.8),
+      0 0 12px 2px rgb(239 68 68 / 0.35);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px rgb(248 113 113 / 1),
+      0 0 26px 6px rgb(239 68 68 / 0.6);
+  }
+}
+
+/* ---------- Entrada de carta no campo ---------- */
+
+.card-enter {
+  animation: card-enter 0.45s var(--ease-out-soft) both;
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Camada de efeitos (dano, cura, destruição) ---------- */
+
+.fx-float {
+  position: absolute;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  animation: fx-float 1.25s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  -webkit-text-stroke: 1.5px rgb(0 0 0 / 0.75);
+  paint-order: stroke fill;
+  text-shadow:
+    0 2px 0 rgb(0 0 0 / 0.9),
+    0 0 14px rgb(0 0 0 / 0.8);
+}
+
+@keyframes fx-float {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -30%) scale(0.5);
+  }
+  14% {
+    opacity: 1;
+    transform: translate(-50%, -70%) scale(1.25);
+  }
+  30% {
+    transform: translate(-50%, -85%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -190%) scale(1);
+  }
+}
+
+.fx-impact {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  animation: fx-impact 0.5s ease-out both;
+}
+
+@keyframes fx-impact {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.15);
+  }
+  70% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+}
+
+.fx-slash {
+  position: absolute;
+  height: 5px;
+  border-radius: 9999px;
+  transform-origin: center;
+  animation: fx-slash 0.42s ease-out both;
+}
+
+@keyframes fx-slash {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(0);
+  }
+  35% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(1.25);
+  }
+}
+
+.fx-ghost {
+  position: absolute;
+  animation: fx-shatter 0.9s ease-in both;
+}
+
+@keyframes fx-shatter {
+  0% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1.06) rotate(-3deg);
+    filter: brightness(2.2) saturate(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(36px) scale(0.6) rotate(10deg);
+    filter: brightness(0.3) blur(3px);
+  }
+}
+
+.fx-flash {
+  position: absolute;
+  inset: 0;
+  animation: fx-flash 0.7s ease-out both;
+}
+
+@keyframes fx-flash {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.fx-banner {
+  animation: fx-banner 1.4s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+@keyframes fx-banner {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.85);
+    letter-spacing: 0.6em;
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    letter-spacing: 0.3em;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
