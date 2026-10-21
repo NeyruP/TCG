@@ -1,4 +1,4 @@
-#<leader> bobo (classe: especialista) (estilo de ataque: projetil) (vida: 2) (poder: 5000) (efeito: permite vc colocar cartas até custo 4 de graça e cartas de custo maior por metade do valor de energia)
+#<leader> bobo (classe: especialista) (estilo de ataque: projetil) (vida: 2) (poder: 5000) (efeito: permite você colocar cartas até custo 4 de graça e cartas de custo maior por metade do valor de energia)
 #<terreno> oficina (classe: especialista) (efeito: as cartas ganham + 1000 de vida)
 #<item> chave inglesa (classe: especialista) (efeito: a carta recebe + 1000 de vida)
 
