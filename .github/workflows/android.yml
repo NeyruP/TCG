@@ -1,6 +1,7 @@
 name: Android (X-B0T)
 
-# Gera o app Android do X-B0T:
+# Gera o X-B0T:
+# - X-B0T-jogo-PC: zip do jogo para computador (abrir JOGAR.html).
 # - X-B0T-apk-teste: APK para instalar direto no celular e testar.
 # - X-B0T-play-store-aab: pacote .aab para enviar à Play Store
 #   (assinado quando os secrets ANDROID_* estão configurados — ver X-B0T/play-store/PUBLICAR.md).
@@ -72,6 +73,16 @@ jobs:
           if [ -n "$ANDROID_KEYSTORE_FILE" ]; then
             jarsigner -verify bundle/release/app-release.aab | tail -1
           fi
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: X-B0T-jogo-PC
+          path: |
+            X-B0T/JOGAR.html
+            X-B0T/INICIAR.bat
+            X-B0T/README.md
+            X-B0T/cards/
+          if-no-files-found: error
 
       - uses: actions/upload-artifact@v6
         with:
