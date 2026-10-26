@@ -1,0 +1,15 @@
+# Site do X-B0T no Netlify: o build roda na pasta X-B0T e publica X-B0T/dist
+# (o jogo com a pasta cards/). Cada push na branch escolhida no Netlify atualiza o site.
+[build]
+  base = "X-B0T"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Imagens das cartas e ícones mudam pouco: o navegador pode guardar por um dia.
+[[headers]]
+  for = "/cards/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

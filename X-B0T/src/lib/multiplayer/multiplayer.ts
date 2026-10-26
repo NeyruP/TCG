@@ -1161,14 +1161,14 @@ function telaLocal() {
     },
   );
 }
-function telaOnline(tipo: "criar" | "entrar") {
+function telaOnline(tipo: "criar" | "entrar", codigo = "") {
   const criar = tipo === "criar";
   render(
     `<p class="xb-kicker">${criar ? "Criar sala" : "Entrar numa sala"}</p>
-      <h2 class="xb-h">${criar ? "Você cria, o outro entra" : "Digite o código da sala"}</h2>
+      <h2 class="xb-h">${criar ? "Você cria, o outro entra" : codigo ? "Você foi convidado: digite seu nome" : "Digite o código da sala"}</h2>
       <label class="xb-l">Seu nome<input class="xb-in" id="xb-nome" maxlength="14" value="${esc(lerLS("xb-nome", ""))}" placeholder="Seu nome"></label>
       ${seletorFaccao("f", lerLS("xb-fac", "magic"))}
-      ${criar ? "" : `<label class="xb-l">Código da sala<input class="xb-in xb-code" id="xb-cod" maxlength="5" autocapitalize="characters" autocomplete="off" placeholder="ABCDE"></label>`}
+      ${criar ? "" : `<label class="xb-l">Código da sala<input class="xb-in xb-code" id="xb-cod" maxlength="5" autocapitalize="characters" autocomplete="off" placeholder="ABCDE" value="${esc(codigo)}"></label>`}
       <p class="xb-err" hidden></p><p class="xb-p xb-small xb-st"></p>
       <div class="xb-row"><button class="xb-btn xb-pri" data-a="ir">${criar ? "Criar sala" : "Entrar"}</button><button class="xb-btn xb-ghost" data-a="voltar">Voltar</button></div>`,
     (r) => {
@@ -1208,17 +1208,32 @@ function telaOnline(tipo: "criar" | "entrar") {
     },
   );
 }
+/** Link do site que abre direto na sala (no app Android e no arquivo aberto do computador não há link). */
+function linkDaSala(codigo: string): string | null {
+  if (Capacitor.isNativePlatform() || !location.protocol.startsWith("http")) return null;
+  const u = new URL(location.href);
+  u.hash = "";
+  u.searchParams.set("sala", codigo);
+  return u.toString();
+}
 function telaSalaCriada(codigo: string) {
+  const link = linkDaSala(codigo);
   render(
     `<p class="xb-kicker">Sala criada</p><h2 class="xb-h">Código da sala</h2>
       <p class="xb-bigcode">${codigo}</p>
-      <p class="xb-p">Mande esse código para o outro jogador. Ele abre o X-B0T, toca em Multiplayer → Entrar numa sala e digita o código.</p>
-      <div class="xb-row"><button class="xb-btn xb-pri" data-a="share">Compartilhar código</button><button class="xb-btn" data-a="copy">Copiar</button></div>
+      <p class="xb-p">${
+        link
+          ? "Mande o link para o outro jogador: ele abre, digita o nome e entra direto na sala. Quem já está no jogo pode usar Multiplayer → Entrar numa sala e digitar o código."
+          : "Mande esse código para o outro jogador. Ele abre o X-B0T, toca em Multiplayer → Entrar numa sala e digita o código."
+      }</p>
+      <div class="xb-row"><button class="xb-btn xb-pri" data-a="share">${link ? "Compartilhar link" : "Compartilhar código"}</button><button class="xb-btn" data-a="copy">${link ? "Copiar link" : "Copiar"}</button></div>
       <p class="xb-p xb-small">Esperando o outro jogador… Deixe esta tela aberta.</p>
       <div class="xb-row"><button class="xb-btn xb-ghost" data-a="voltar">Cancelar</button></div>`,
     (r) => {
-      const msg = `Bora jogar X-B0T! Abra o jogo, toque em Multiplayer → Entrar numa sala e digite o código ${codigo}`;
-      $(r, "[data-a=copy]").onclick = (e) => copiar(codigo, e.target as HTMLElement);
+      const msg = link
+        ? `Bora jogar X-B0T! Entre na minha sala: ${link}`
+        : `Bora jogar X-B0T! Abra o jogo, toque em Multiplayer → Entrar numa sala e digite o código ${codigo}`;
+      $(r, "[data-a=copy]").onclick = (e) => copiar(link ?? codigo, e.target as HTMLElement);
       $(r, "[data-a=share]").onclick = (e) => compartilhar(msg, e.target as HTMLElement);
       $(r, "[data-a=voltar]").onclick = telaInicio;
     },
@@ -1388,6 +1403,16 @@ export function initMultiplayer() {
   XB.openLobby = abrirLobby;
   XB.closeLobby = voltarDoLobby;
   vigiarVez();
+  // Link de sala (?sala=ABCDE): abre direto na tela de entrar, com o código preenchido.
+  const q = new URLSearchParams(location.search);
+  const sala = (q.get("sala") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5);
+  if (sala) {
+    q.delete("sala");
+    const resto = q.toString();
+    history.replaceState(null, "", location.pathname + (resto ? `?${resto}` : "") + location.hash);
+    abrirLobby();
+    telaOnline("entrar", sala);
+  }
   if (import.meta.env.DEV) {
     // teste automatizado (só lê o estado)
     (window as unknown as { __xbmp: unknown }).__xbmp = { MP, view, O };

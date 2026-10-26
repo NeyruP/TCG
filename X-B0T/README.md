@@ -23,6 +23,22 @@ Na tela inicial, toque em **Multiplayer**:
 
 Quem cria a sala é o anfitrião: as regras rodam no aparelho dele, e o outro aparelho recebe a mesa pronta. Se a conexão cair, o convidado volta sozinho para a sala.
 
+## Site no Netlify (jogar por link)
+
+O jogo roda como site: é só abrir o link no navegador do computador ou do celular (deitado).
+
+**Jeito recomendado (o site se atualiza sozinho a cada mudança no GitHub):**
+
+1. Entre em https://app.netlify.com e clique em **Add new project** (ou **Add new site**) → **Import an existing project** → **GitHub**.
+2. Escolha o repositório `NeyruP/TCG`.
+3. Em **Branch to deploy**, escolha a branch onde está o jogo (`claude/game-visual-effects-refactor-f7xuqc`, ou `main` depois de juntar as mudanças).
+4. Não precisa mexer em mais nada: as configurações já estão no arquivo `netlify.toml` (pasta `X-B0T`, comando `npm run build`, publica `dist`). Clique em **Deploy**.
+5. Em **Site configuration** → **Change site name** dá para trocar o endereço, por exemplo `x-b0t.netlify.app`.
+
+**Jeito rápido (sem ligar ao GitHub):** rode `npm run build` e arraste a pasta `dist` em https://app.netlify.com/drop. Nesse jeito, cada atualização precisa ser arrastada de novo.
+
+**Multiplayer pelo site:** em **Multiplayer → Criar sala online**, toque em **Compartilhar link**. Quem abrir o link cai direto na sala, com o código preenchido: é só digitar o nome e entrar.
+
 ## Versão Android (Play Store)
 
 O jogo também é um app Android (pasta `android/`, feito com Capacitor): abre deitado, em tela cheia e funciona offline (só o multiplayer online precisa de internet). O GitHub Actions gera o APK de teste e o `.aab` da Play Store a cada alteração. O passo a passo para publicar, os textos da loja, o ícone, o gráfico de destaque e as capturas de tela estão em [`play-store/`](play-store/PUBLICAR.md).
