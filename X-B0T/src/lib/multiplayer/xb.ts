@@ -17,7 +17,7 @@ export type EngineFnName =
 export type MirrorView = GameState & { __mpP?: 0 | 1 };
 
 export interface MpApi {
-  /** "local" (mesmo celular), "host" (anfitrião) ou "guest" (convidado). */
+  /** "local" (mesma máquina), "host" (anfitrião) ou "guest" (convidado). */
   mode: "local" | "host" | "guest" | null;
   active(): boolean;
   t(s: string): string;

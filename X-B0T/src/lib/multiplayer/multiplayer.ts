@@ -1,4 +1,4 @@
-/* ===== X-B0T · Multiplayer (mesmo celular e online) =====
+/* ===== X-B0T · Multiplayer (mesma máquina e online) =====
    As regras não mudam: existe uma mesa "verdadeira" (C), e cada jogador vê uma cópia
    espelhada em que ele é o jogador 0. As jogadas feitas na cópia são traduzidas para a
    mesa verdadeira. No modo solo, nada disso é usado. */
@@ -412,7 +412,7 @@ function encerrar(avisar: boolean) {
   removerAviso();
 }
 
-// ---------- modo no mesmo celular: cortina para passar o aparelho ----------
+// ---------- modo na mesma máquina: cortina para trocar de jogador ----------
 function desejado(): Seat {
   const C = MP.C;
   if (!C || C.winner != null) return MP.curP;
@@ -439,7 +439,7 @@ function cortina(p: Seat, titulo: string) {
   const el = document.createElement("div");
   el.className = "xb-ov felt";
   el.id = "xb-cortina";
-  el.innerHTML = `<div class="xb-box xb-center"><p class="xb-kicker">Passe o celular</p>
+  el.innerHTML = `<div class="xb-box xb-center"><p class="xb-kicker">Troca de jogador</p>
       <h2 class="xb-h">${esc(titulo)}</h2>
       <p class="xb-p">Só ${esc(MP.names[p])} deve olhar a tela agora.</p>
       <button class="xb-btn xb-pri" data-a="ok">Sou ${esc(MP.names[p])} — mostrar a mesa</button></div>`;
@@ -1118,9 +1118,9 @@ function telaInicio() {
   encerrar(false);
   render(
     `<p class="xb-kicker">X-B0T</p><h2 class="xb-h">Multiplayer</h2>
-      <p class="xb-p">Jogue contra outra pessoa no mesmo celular ou pela internet.</p>
+      <p class="xb-p">Jogue contra outra pessoa na mesma máquina ou pela internet.</p>
       <div class="xb-col">
-        <button class="xb-btn xb-pri" data-a="local">No mesmo celular</button>
+        <button class="xb-btn xb-pri" data-a="local">Na mesma máquina</button>
         <button class="xb-btn" data-a="criar">Criar sala online</button>
         <button class="xb-btn" data-a="entrar">Entrar numa sala</button>
         <button class="xb-btn xb-ghost" data-a="manual">Online sem servidor (por código)</button>
@@ -1137,12 +1137,12 @@ function telaInicio() {
 }
 function telaLocal() {
   render(
-    `<p class="xb-kicker">No mesmo celular</p><h2 class="xb-h">Quem vai jogar?</h2>
+    `<p class="xb-kicker">Na mesma máquina</p><h2 class="xb-h">Quem vai jogar?</h2>
       <div class="xb-two"><div class="xb-col"><label class="xb-l">Jogador 1<input class="xb-in" id="xb-n1" maxlength="14" value="${esc(lerLS("xb-n1", "Jogador 1"))}"></label>
       ${seletorFaccao("f1", "magic")}</div>
       <div class="xb-col"><label class="xb-l">Jogador 2<input class="xb-in" id="xb-n2" maxlength="14" value="${esc(lerLS("xb-n2", "Jogador 2"))}"></label>
       ${seletorFaccao("f2", "machine")}</div></div>
-      <p class="xb-p xb-small">Quem começa é sorteado. Entre os turnos, o jogo pede para passar o celular.</p>
+      <p class="xb-p xb-small">Quem começa é sorteado. Entre os turnos, o jogo pede para trocar de jogador, para um não ver a mão do outro.</p>
       <div class="xb-row"><button class="xb-btn xb-pri" data-a="ir">Começar</button><button class="xb-btn xb-ghost" data-a="voltar">Voltar</button></div>`,
     (r) => {
       ligarSeletores(r);

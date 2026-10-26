@@ -7,7 +7,7 @@ Versão do jogo X-B0T (a mesma base do link do Drive em `Feira de ciencias/X-B0T
 - **Ataque corrigido**: clique numa carta sua que esteja brilhando e depois no alvo (ou arraste até ele). Funciona direto da fase principal, e quando um ataque não é possível o jogo explica o motivo.
 - **Sem cartas de energia**: a energia chega sozinha a cada turno.
 - **Efeitos das cartas** conforme o README do repositório (Deck Roxo: Mágico e Deck Amarelo: Especialista).
-- **Multiplayer**: duas pessoas no mesmo celular (o jogo pede para passar o aparelho entre os turnos) ou online, por código de sala ou por convite sem servidor.
+- **Multiplayer**: duas pessoas na mesma máquina, celular ou computador (o jogo pede para trocar de jogador entre os turnos) ou online, por código de sala ou por convite sem servidor.
 
 ## Como jogar
 
@@ -17,7 +17,7 @@ Abra **`JOGAR.html`** com dois cliques (ou `INICIAR.bat` no Windows). Não preci
 
 Na tela inicial, toque em **Multiplayer**:
 
-- **No mesmo celular**: cada jogador escolhe nome e escola; quem começa é sorteado. Entre os turnos aparece uma tela de "Passe o celular" para um não ver a mão do outro.
+- **Na mesma máquina**: cada jogador escolhe nome e escola; quem começa é sorteado. Entre os turnos aparece uma tela de "Troca de jogador" para um não ver a mão do outro.
 - **Criar sala online / Entrar numa sala**: quem cria recebe um código de 5 letras e manda para o outro, que digita o código. Precisa de internet nos dois aparelhos (o jogo usa o servidor público do PeerJS só para os dois se encontrarem; a partida em si vai direto de um aparelho para o outro).
 - **Online sem servidor (por código)**: se o servidor de salas não responder, um cria um convite (código longo), o outro cola e devolve uma resposta. Na mesma rede Wi-Fi funciona até sem internet.
 
@@ -67,7 +67,7 @@ O código mantém a estrutura do X-B0T (`src/lib/game` para regras, cartas e má
 | `src/components/game/playmat.tsx` | A mesa de jogo |
 | `src/components/game/fx-layer.tsx` | Efeitos visuais de dano, cura e destruição |
 | `src/components/game/card-view.tsx` | Desenho de cada carta |
-| `src/lib/multiplayer/multiplayer.ts` | Multiplayer: mesa espelhada, mesmo celular, salas online e convites |
+| `src/lib/multiplayer/multiplayer.ts` | Multiplayer: mesa espelhada, mesma máquina, salas online e convites |
 
 ```bash
 npm install

@@ -67,7 +67,7 @@ Como funciona:
 • As cartas que podem atacar brilham: toque nela e depois no alvo.
 • Defensores protegem o líder, cartas Counter salvam seus aliados e o dano fica marcado em cada carta.
 • Efeitos visuais mostram cada golpe: números de dano, cartas se despedaçando e a tela piscando quando você é atingido.
-• Multiplayer: jogue com um amigo no mesmo celular ou online, com um código de sala.
+• Multiplayer: jogue com um amigo na mesma máquina ou online, com um código de sala.
 
 A máquina começa mansa e fica mais esperta a cada partida. Tem tutorial passo a passo, joga contra a máquina sem internet e não tem anúncios.
 
