@@ -137,11 +137,12 @@ function mainPhaseStep(state: GameState, skill: number): AiStep | null {
 
   for (const unit of me.field) {
     if (activateBlockReason(state, 1, unit.id)) continue;
+    if (unit.defId === "lectrabo") return { type: "activate", cardId: unit.id, target: null };
     if (unit.defId === "engibot") return { type: "activate", cardId: unit.id, target: null };
     if (unit.defId === "estudante" && skill >= 3 && rand() > 0.4) {
       return { type: "activate", cardId: unit.id, target: null };
     }
-    if (unit.defId === "hackbot" && skill >= 2) {
+    if (unit.defId === "hackbot" && skill >= 2 && !you.field.some((c) => c.defId === "mabo")) {
       // Enfraquece o atacante inimigo com mais ATK do que DEF.
       const prey = [...unitsOn(you)]
         .filter((c) => c.attack - c.defense >= 2000)

@@ -31,8 +31,8 @@ A Play Store só aceita `.aab` assinado com a sua chave de upload. A chave foi e
    - **Acesso ao app**: todo o conteúdo está disponível sem login.
    - **Anúncios**: não contém anúncios.
    - **Classificação do conteúdo**: responda o questionário (jogo de cartas, sem violência realista, sem compras).
-   - **Público-alvo**: escolha as faixas de idade. Se incluir menores de 13 anos, o app segue a política de Famílias (o X-B0T já atende: sem anúncios e sem coleta de dados).
-   - **Segurança dos dados**: o app **não coleta nem compartilha** dados.
+   - **Público-alvo**: escolha as faixas de idade. Se incluir menores de 13 anos, o app segue a política de Famílias (o X-B0T não tem anúncios nem coleta de dados; o multiplayer online só troca o nome digitado e as jogadas com o outro jogador).
+   - **Segurança dos dados**: o app não tem conta, anúncios nem análise. No multiplayer online, o nome digitado e as jogadas vão direto para o aparelho do outro jogador (conexão WebRTC criptografada, sem servidor próprio), e o servidor público do PeerJS só ajuda os dois aparelhos a se encontrarem. Leia as definições do formulário e responda de acordo com elas: quem publica é responsável pelas respostas. A política em `PRIVACIDADE.md` já descreve isso.
 4. **Ficha da loja principal** (textos abaixo e imagens desta pasta):
    - Ícone: `icone-512.png`
    - Gráfico de destaque: `destaque-1024x500.png`
@@ -67,7 +67,8 @@ Como funciona:
 • As cartas que podem atacar brilham: toque nela e depois no alvo.
 • Defensores protegem o líder, cartas Counter salvam seus aliados e o dano fica marcado em cada carta.
 • Efeitos visuais mostram cada golpe: números de dano, cartas se despedaçando e a tela piscando quando você é atingido.
+• Multiplayer: jogue com um amigo no mesmo celular ou online, com um código de sala.
 
-A máquina começa mansa e fica mais esperta a cada partida. Tem tutorial passo a passo e funciona sem internet, sem anúncios e sem coletar dados.
+A máquina começa mansa e fica mais esperta a cada partida. Tem tutorial passo a passo, joga contra a máquina sem internet e não tem anúncios.
 
 Projeto criado para a feira de ciências.

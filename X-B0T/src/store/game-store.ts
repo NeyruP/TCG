@@ -2,24 +2,32 @@ import { create } from "zustand";
 import { aiAnswerPending, applyAiStep } from "@/lib/game/ai";
 import { abilityTargetNeed } from "@/lib/game/cards";
 import { sfx, unlockAudio } from "@/lib/game/audio";
-import {
-  activateAbility,
-  answerBomia,
-  answerCounter,
-  answerPick,
-  attack,
-  canAttack,
-  canPlay,
-  createMatch,
-  createTutorialMatch,
-  dismissReveal,
-  endTurn,
-  playCard,
-  resolveAll,
-  setPhase,
-} from "@/lib/game/engine";
+import * as engine from "@/lib/game/engine";
+import { canAttack, canPlay, createMatch, createTutorialMatch } from "@/lib/game/engine";
 import { aiSkillFrom, loadProgress, saveProgress, type Progress } from "@/lib/game/persist";
 import type { AttackTarget, EffectTarget, Faction, GameState, Screen } from "@/lib/game/types";
+import { XB, isMirror, type EngineFnName } from "@/lib/multiplayer/xb";
+
+/**
+ * Numa partida multiplayer a mesa na tela é uma cópia espelhada (ver lib/multiplayer):
+ * a jogada vai para o multiplayer, que aplica na mesa verdadeira. No modo solo passa direto.
+ */
+function viaMp<F extends (state: GameState, ...args: never[]) => unknown>(name: EngineFnName, fn: F): F {
+  const direto = fn as unknown as (state: GameState, ...args: unknown[]) => unknown;
+  const roteado = (state: GameState, ...args: unknown[]) =>
+    isMirror(state) && XB.mp?.mode ? XB.mp.act(name, args, state) : direto(state, ...args);
+  return roteado as unknown as F;
+}
+const playCard = viaMp("playCard", engine.playCard);
+const attack = viaMp("attack", engine.attack);
+const activateAbility = viaMp("activateAbility", engine.activateAbility);
+const answerCounter = viaMp("answerCounter", engine.answerCounter);
+const answerPick = viaMp("answerPick", engine.answerPick);
+const answerBomia = viaMp("answerBomia", engine.answerBomia);
+const setPhase = viaMp("setPhase", engine.setPhase);
+const endTurn = viaMp("endTurn", engine.endTurn);
+const dismissReveal = viaMp("dismissReveal", engine.dismissReveal);
+const resolveAll = viaMp("resolveAll", engine.resolveAll);
 
 export interface DragState {
   cardId: string;
@@ -79,6 +87,10 @@ function bumpProgress(won: boolean, faction: Faction): Progress {
 
 /** Publica o estado; se a partida acabou, vai para a tela de resultado. */
 function publish(state: GameState, extra: Partial<GameStore> = {}) {
+  if (XB.mp && XB.on() && isMirror(state)) {
+    XB.mp.publish(state, extra);
+    return;
+  }
   if (state.winner != null) {
     const won = state.winner === 0;
     const progress = bumpProgress(won, state.players[0].faction);
@@ -169,7 +181,7 @@ export const useGame = create<GameStore>((set, get) => ({
       return false;
     }
     // A máquina decide na hora se usa um Counter.
-    if (state.pending?.player === 1) aiAnswerPending(state, skill);
+    if (!XB.on() && state.pending?.player === 1) aiAnswerPending(state, skill);
     const keep = canAttack(state, 0, attackerId) ? attackerId : null;
     publish(state, { selectedId: keep, targeting: null, toast: null });
     return true;
@@ -265,7 +277,7 @@ export const useGame = create<GameStore>((set, get) => ({
 /** Depois que o jogador responde, a máquina continua o turno dela (se for o caso). */
 function afterAnswer(state: GameState) {
   const { skill } = useGame.getState();
-  if (state.pending?.player === 1) aiAnswerPending(state, skill);
+  if (!XB.on() && state.pending?.player === 1) aiAnswerPending(state, skill);
   publish(state);
   if (state.winner == null && state.active === 1) {
     useGame.setState({ aiBusy: true });
@@ -277,6 +289,11 @@ let aiTimer: number | null = null;
 
 function runAiLoop() {
   if (aiTimer != null) window.clearTimeout(aiTimer);
+  // Multiplayer: quem joga do outro lado é uma pessoa.
+  if (XB.on()) {
+    useGame.setState({ aiBusy: false });
+    return;
+  }
   const step = () => {
     aiTimer = null;
     const { state, skill } = useGame.getState();

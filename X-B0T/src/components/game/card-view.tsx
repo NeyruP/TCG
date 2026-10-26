@@ -1,5 +1,6 @@
 import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import { Crosshair, Flame, Hourglass, Moon, Shield, Sword, Zap } from "lucide-react";
+import { cardImage } from "@/lib/game/cards";
 import type { CardInstance } from "@/lib/game/types";
 import { cn } from "@/lib/utils";
 
@@ -113,7 +114,7 @@ export function CardView({
 
 function CardBack() {
   return (
-    <img src="cards/back.jpg" alt="Carta virada" className="h-full w-full object-cover" draggable={false} />
+    <img src={cardImage("back")} alt="Carta virada" className="h-full w-full object-cover" draggable={false} />
   );
 }
 

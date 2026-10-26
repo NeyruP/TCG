@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./app";
 import { instantiate } from "./lib/game/cards";
+import { initMultiplayer } from "./lib/multiplayer/multiplayer";
 import { setupNative } from "./lib/native";
 import { useGame } from "./store/game-store";
 // Fontes embutidas (funciona offline, inclusive no app Android).
@@ -20,6 +21,7 @@ if (import.meta.env.DEV) {
 }
 
 setupNative();
+initMultiplayer();
 
 createRoot(document.getElementById("app")!).render(
   <StrictMode>

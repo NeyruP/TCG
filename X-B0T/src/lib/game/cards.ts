@@ -14,6 +14,18 @@ export function resetIds() {
   seq = 1;
 }
 
+declare global {
+  interface Window {
+    /** Imagens das cartas embutidas (só no arquivo único JOGAR.html). */
+    __XB_CARDS?: Record<string, string>;
+  }
+}
+
+/** Imagem da carta: embutida no JOGAR.html ou da pasta cards/ (app Android e servidor). */
+export function cardImage(defId: string): string {
+  return (typeof window !== "undefined" && window.__XB_CARDS?.[defId]) || `cards/${defId}.jpg`;
+}
+
 type Spec = Pick<CardDef, "defId" | "name" | "cardType" | "ability" | "cardClass" | "faction"> &
   Partial<CardDef>;
 
@@ -27,7 +39,7 @@ function card(spec: Spec): CardDef {
     life: 0,
     speed: "Sorcery",
     keywords: [],
-    image: `cards/${spec.defId}.jpg`,
+    image: cardImage(spec.defId),
     ...spec,
   };
 }
@@ -73,7 +85,7 @@ export const CARD_DEFS: Record<string, CardDef> = {
     speed: "Instant",
     cardClass: "Mágico",
     ability:
-      "Olhe as 3 cartas do topo do baralho inimigo. Se houver uma carta de Efeito, envie-a direto para a pilha de descarte.",
+      "Olhe as 3 cartas do topo do baralho inimigo e envie todas as cartas de Efeito entre elas para a pilha de descarte.",
     faction: "magic",
   }),
   assembleia: card({
@@ -100,11 +112,10 @@ export const CARD_DEFS: Record<string, CardDef> = {
     defId: "canalizar",
     name: "Canalizar",
     cardType: "Efeito",
-    cost: 6,
+    cost: 4,
     speed: "Instant",
     cardClass: "Mágico",
-    ability:
-      "O aliado alvo ganha +6000 de ataque neste turno. No fim do turno, ele vai para a pilha de descarte.",
+    ability: "O aliado alvo ganha +5000 de ataque até o fim do turno.",
     faction: "magic",
   }),
   rodote: card({
@@ -124,12 +135,12 @@ export const CARD_DEFS: Record<string, CardDef> = {
     name: "Mabo",
     cardType: "Especial",
     attack: 7000,
-    defense: 3000,
-    cost: 8,
+    defense: 5000,
+    cost: 6,
     cardClass: "Mágico",
     attackStyle: "Especial",
     ability:
-      "Contínuo: enquanto Mabo estiver em campo, o seu líder fica imune a todos os efeitos de cartas do adversário.",
+      "Contínuo: enquanto Mabo estiver em campo, as suas cartas ficam imunes às habilidades do adversário (como a troca do H4kB0T).",
     faction: "magic",
   }),
   drogoon: card({
@@ -138,7 +149,7 @@ export const CARD_DEFS: Record<string, CardDef> = {
     cardType: "Especial",
     attack: 6000,
     defense: 6000,
-    cost: 6,
+    cost: 5,
     cardClass: "Mágico",
     attackStyle: "Físico",
     keywords: ["Defender"],
@@ -273,7 +284,7 @@ export const CARD_DEFS: Record<string, CardDef> = {
     speed: "Counter",
     cardClass: "Especialista",
     ability:
-      "Counter: quando um aliado for alvo de um ataque, ele ganha +3000 de ataque e defesa durante o combate.",
+      "Counter: quando um aliado for alvo de um ataque, ele ganha +3000 de defesa durante o combate.",
     faction: "machine",
   }),
   reiniciar: card({
@@ -303,7 +314,7 @@ export const CARD_DEFS: Record<string, CardDef> = {
     name: "Servidor",
     cardType: "Especial",
     attack: 1000,
-    defense: 7000,
+    defense: 5000,
     cost: 7,
     cardClass: "Especialista",
     attackStyle: "Físico",
@@ -374,7 +385,7 @@ export const CARD_DEFS: Record<string, CardDef> = {
     counter: 1000,
     cardClass: "Especialista",
     attackStyle: "Especial",
-    ability: "Enquanto estiver em campo, recupera 2 energias no início de cada turno seu.",
+    ability: "Habilidade (1x por turno): pague 4 energias para comprar 1 carta.",
     faction: "machine",
   }),
   tetabot: card({
@@ -508,7 +519,12 @@ export function targetNeedFor(card: CardInstance): TargetNeed {
 
 /** Unidades com habilidade ativável (botão "Habilidade"). */
 export function hasActivated(card: CardInstance): boolean {
-  return card.defId === "estudante" || card.defId === "engibot" || card.defId === "hackbot";
+  return (
+    card.defId === "estudante" ||
+    card.defId === "engibot" ||
+    card.defId === "hackbot" ||
+    card.defId === "lectrabo"
+  );
 }
 
 export function abilityTargetNeed(card: CardInstance): TargetNeed {

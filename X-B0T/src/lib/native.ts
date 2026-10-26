@@ -1,5 +1,6 @@
 import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
+import { XB } from "@/lib/multiplayer/xb";
 import { useGame } from "@/store/game-store";
 
 /**
@@ -9,6 +10,7 @@ import { useGame } from "@/store/game-store";
 export function setupNative() {
   if (!Capacitor.isNativePlatform()) return;
   void App.addListener("backButton", () => {
+    if (XB.closeLobby()) return;
     const st = useGame.getState();
     if (st.targeting || st.selectedId) {
       useGame.setState({ targeting: null, selectedId: null });

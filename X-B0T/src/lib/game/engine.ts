@@ -289,12 +289,13 @@ export function beginTurn(state: GameState) {
   p.leader.jaAtacou = false;
   p.leader.attacksUsed = 0;
 
-  const gain = state.turn >= 3 ? 2 : 1;
+  // Quem joga em segundo ganha +1 por turno, para compensar quem começa.
+  const gain = (state.turn >= 3 ? 2 : 1) + (state.firstTurnNoAttack && state.active === 1 ? 1 : 0);
   p.energy += gain;
   fx(state, { kind: "energy", side: state.active, targetId: p.leader.id, amount: gain });
 
   for (const c of p.field) {
-    const regen = c.defId === "gatorreta" ? 1 : c.defId === "lectrabo" ? 2 : 0;
+    const regen = c.defId === "gatorreta" ? 1 : 0;
     if (!regen) continue;
     p.energy += regen;
     fx(state, { kind: "energy", side: state.active, targetId: c.id, amount: regen });
@@ -520,20 +521,21 @@ export function resolveTop(state: GameState) {
     case "anular": {
       const o = state.players[opp(controllerIdx)];
       const top = o.deck.slice(0, 3);
-      const hit = top.findIndex((c) => c.cardType === "Efeito");
+      const hits = top.filter((c) => c.cardType === "Efeito");
       state.reveal = {
         viewer: controllerIdx,
         title: "Anular",
         cards: top.map(cloneCard),
-        reason:
-          hit >= 0
-            ? `${top[hit]!.name} foi enviada para o descarte de ${o.name}.`
-            : "Nenhuma carta de Efeito no topo do baralho inimigo.",
+        reason: hits.length
+          ? `${hits.map((c) => c.name).join(", ")} ${hits.length > 1 ? "foram enviadas" : "foi enviada"} para o descarte de ${o.name}.`
+          : "Nenhuma carta de Efeito no topo do baralho inimigo.",
       };
-      if (hit >= 0) {
-        const gone = o.deck.splice(hit, 1)[0] as CardInstance;
-        o.grave.push(gone);
-        log(state, `${card.name} anula ${gone.name} do topo do baralho de ${o.name}.`);
+      if (hits.length) {
+        for (const gone of hits) {
+          o.deck.splice(o.deck.indexOf(gone), 1);
+          o.grave.push(gone);
+          log(state, `${card.name} anula ${gone.name} do topo do baralho de ${o.name}.`);
+        }
       } else {
         log(state, `${card.name} não encontrou carta de Efeito no topo.`);
       }
@@ -549,10 +551,9 @@ export function resolveTop(state: GameState) {
     }
     case "canalizar": {
       if (ally) {
-        ally.buffAtaque += 6000;
-        ally.sacrificeEnd = true;
-        log(state, `${ally.name} canaliza poder: +6000 ATK, vai para o descarte no fim do turno.`);
-        fx(state, { kind: "buff", targetId: ally.id, text: "+6000 ATK" });
+        ally.tempAtk += 5000;
+        log(state, `${ally.name} canaliza poder: +5000 ATK até o fim do turno.`);
+        fx(state, { kind: "buff", targetId: ally.id, text: "+5000 ATK" });
       }
       break;
     }
@@ -604,7 +605,7 @@ export function resolveAll(state: GameState) {
 }
 
 // ============================================================
-// HABILIDADES ATIVÁVEIS (Estudante, Engibot, H4kB0T)
+// HABILIDADES ATIVÁVEIS (Estudante, Lectrabo, Engibot, H4kB0T)
 // ============================================================
 
 export function activateBlockReason(
@@ -622,6 +623,11 @@ export function activateBlockReason(
   if (unit.defId === "estudante") {
     if (p.energy < 2) return "Precisa de 2 energias.";
     if (!p.deck.some((c) => c.defId === "tomo")) return "Não há Tomo da Sabedoria no baralho.";
+    return null;
+  }
+  if (unit.defId === "lectrabo") {
+    if (p.energy < 4) return "Precisa de 4 energias.";
+    if (!p.deck.length) return "Seu baralho acabou.";
     return null;
   }
   if (unit.defId === "engibot") {
@@ -657,6 +663,15 @@ export function activateAbility(
     return { ok: true };
   }
 
+  if (unit.defId === "lectrabo") {
+    p.energy -= 4;
+    unit.usedActivated = true;
+    draw(state, player, 1);
+    log(state, `${unit.name} gasta 4 energias e compra 1 carta.`);
+    fx(state, { kind: "buff", targetId: unit.id, text: "+1 carta" });
+    return { ok: true };
+  }
+
   if (unit.defId === "engibot") {
     const token = instantiate("torreta", player);
     token.summonedThisTurn = true;
@@ -672,6 +687,9 @@ export function activateAbility(
   const ownerIdx = state.players.findIndex((pl) => pl.field.some((c) => c.id === target.cardId));
   const t = ownerIdx >= 0 ? state.players[ownerIdx]!.field.find((c) => c.id === target.cardId) : undefined;
   if (!t || !isUnit(t)) return { ok: false, error: "Escolha uma unidade em campo." };
+  if (ownerIdx !== player && state.players[ownerIdx]!.field.some((c) => c.defId === "mabo")) {
+    return { ok: false, error: "Mabo protege essas cartas contra habilidades." };
+  }
   const a = t.attack;
   t.attack = t.defense;
   t.defense = a;
@@ -737,6 +755,9 @@ export function targetBlockReason(
       return `Derrote primeiro o Defensor (${names}).`;
     }
     return null;
+  }
+  if (state.firstTurnNoAttack && state.turn < 4) {
+    return "O líder só pode ser atacado a partir do turno 4. Ataque uma carta.";
   }
   if (guards.length) return `${names} protege o líder. Derrote os Defensores primeiro.`;
   const p = state.players[player];

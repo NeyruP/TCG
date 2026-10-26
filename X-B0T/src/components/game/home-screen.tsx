@@ -1,6 +1,7 @@
-import { BookOpen, Play, ScrollText } from "lucide-react";
-import { FACTION_META } from "@/lib/game/cards";
+import { BookOpen, Play, ScrollText, Swords } from "lucide-react";
+import { FACTION_META, cardImage } from "@/lib/game/cards";
 import { skillLabel } from "@/lib/game/ai";
+import { XB } from "@/lib/multiplayer/xb";
 import { useGame } from "@/store/game-store";
 import { Button } from "@/components/ui/button";
 
@@ -36,7 +37,7 @@ export function HomeScreen() {
             Arraste as cartas, jogue contra uma máquina que começa mansa e
             aprende com você. Feito para quem nunca sentou à mesa de um TCG.
           </p>
-          <div className="mt-8 grid grid-cols-1 gap-3 sm:max-w-md sm:grid-cols-2 short:mt-4 short:max-w-2xl short:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:max-w-md sm:grid-cols-2 short:mt-4 short:max-w-xl short:grid-cols-2">
             <Button size="lg" className="w-full rounded-full whitespace-nowrap short:h-11 short:text-sm" onClick={() => go("setup")}>
               <Play className="size-4" />
               Partida rápida
@@ -52,8 +53,17 @@ export function HomeScreen() {
             </Button>
             <Button
               size="lg"
+              variant="secondary"
+              className="w-full rounded-full whitespace-nowrap short:h-11 short:text-sm"
+              onClick={() => XB.openLobby()}
+            >
+              <Swords className="size-4" />
+              Multiplayer
+            </Button>
+            <Button
+              size="lg"
               variant="ghost"
-              className="w-full rounded-full whitespace-nowrap sm:col-span-2 short:col-span-1 short:h-11 short:text-sm"
+              className="w-full rounded-full whitespace-nowrap short:h-11 short:text-sm"
               onClick={() => go("rules")}
             >
               <ScrollText className="size-4" />
@@ -85,12 +95,12 @@ function HeroCards() {
   return (
     <div className="absolute top-1/2 right-[-8%] hidden w-[48%] -translate-y-1/2 lg:block">
       <img
-        src="cards/bobo.jpg"
+        src={cardImage("bobo")}
         alt=""
         className="absolute top-8 left-24 w-[46%] rotate-6 rounded-[18px] card-shadow-lift"
       />
       <img
-        src="cards/rogen.jpg"
+        src={cardImage("rogen")}
         alt=""
         className="relative w-[46%] -rotate-8 rounded-[18px] card-shadow-lift"
       />
@@ -120,13 +130,13 @@ export function SetupScreen() {
       <div className="mt-10 grid max-w-4xl gap-5 md:grid-cols-2 short:mt-3 short:grid-cols-2 short:gap-3">
         <DeckPick
           faction="magic"
-          image="cards/rogen.jpg"
+          image={cardImage("rogen")}
           preferred={last === "magic"}
           onPick={() => startMatch("magic")}
         />
         <DeckPick
           faction="machine"
-          image="cards/bobo.jpg"
+          image={cardImage("bobo")}
           preferred={last === "machine"}
           onPick={() => startMatch("machine")}
         />
@@ -210,7 +220,7 @@ const RULES = [
   },
   {
     t: "Energia e custo",
-    b: "Não existem cartas de energia. Você começa com 2, ganha +1 no seu primeiro turno e +2 nos seguintes; o que sobra fica guardado. O número no canto da carta é o custo. Alguns personagens (Helbo, Gatorreta, Lectrabo) recuperam energia, e o líder Bobo joga cartas de custo até 4 de graça.",
+    b: "Não existem cartas de energia. Você começa com 2, ganha +1 no seu primeiro turno e +2 nos seguintes; o que sobra fica guardado. Quem joga em segundo (a máquina) ganha +1 a mais por turno, para compensar quem começa. O número no canto da carta é o custo. Alguns personagens (Helbo, Gatorreta) recuperam energia, o Lectrabo gasta 4 para comprar uma carta, e o líder Bobo joga cartas de custo até 4 de graça.",
   },
   {
     t: "Como jogar uma carta",
@@ -218,7 +228,7 @@ const RULES = [
   },
   {
     t: "Ataque",
-    b: "As cartas que podem atacar ficam brilhando. Clique numa delas (ou no seu líder) e depois no alvo — ou arraste até ele. Atacar o líder tira 1 vida se o ataque for maior ou igual à defesa do líder (Rogen tem 5000, Bobo não tem defesa). Atacar um personagem causa dano: se o ataque for maior ou igual à defesa atual, ele é destruído; senão, fica ferido (a barra de vida mostra quanto sobrou). Na primeira rodada (turnos 1 e 2) ninguém ataca.",
+    b: "As cartas que podem atacar ficam brilhando. Clique numa delas (ou no seu líder) e depois no alvo — ou arraste até ele. Atacar o líder tira 1 vida se o ataque for maior ou igual à defesa do líder (Rogen tem 5000, Bobo não tem defesa). Atacar um personagem causa dano: se o ataque for maior ou igual à defesa atual, ele é destruído; senão, fica ferido (a barra de vida mostra quanto sobrou). Na primeira rodada (turnos 1 e 2) ninguém ataca, e o líder só pode ser atacado a partir do turno 4: no turno 3, quem começa só ataca cartas.",
   },
   {
     t: "Defensor e Counter",
@@ -241,24 +251,28 @@ export function ResultScreen() {
   return (
     <div className="felt flex min-h-dvh flex-col items-center justify-center px-6 text-center">
       <p className="text-[11px] tracking-[0.24em] text-muted uppercase">
-        {won ? "Vitória" : "Derrota"}
+        {XB.t(won ? "Vitória" : "Derrota")}
       </p>
       <h1 className="mt-3 font-display text-5xl sm:text-6xl">
-        {won ? "A mesa é sua" : "A máquina levou"}
+        {XB.mp && XB.on() ? XB.mp.resTitle(won) : won ? "A mesa é sua" : "A máquina levou"}
       </h1>
       <p className="mt-4 max-w-md text-muted">
-        {won
-          ? "Ela anotou essa partida. Da próxima vez tenta jogar um pouco melhor."
-          : "Ela ainda erra bastante. Jogue de novo — o baralho muda a cada mão."}
+        {XB.mp && XB.on()
+          ? XB.mp.resText(won)
+          : won
+            ? "Ela anotou essa partida. Da próxima vez tenta jogar um pouco melhor."
+            : "Ela ainda erra bastante. Jogue de novo — o baralho muda a cada mão."}
       </p>
-      <p className="mt-2 text-sm text-subtle">Nível da máquina: {skillLabel(skill)}</p>
+      {!XB.on() && <p className="mt-2 text-sm text-subtle">Nível da máquina: {skillLabel(skill)}</p>}
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <Button size="lg" className="rounded-full" onClick={() => startMatch(faction)}>
           Revanche
         </Button>
-        <Button size="lg" variant="secondary" className="rounded-full" onClick={() => go("setup")}>
-          Trocar de escola
-        </Button>
+        {!XB.on() && (
+          <Button size="lg" variant="secondary" className="rounded-full" onClick={() => go("setup")}>
+            Trocar de escola
+          </Button>
+        )}
         <Button size="lg" variant="ghost" className="rounded-full" onClick={() => go("home")}>
           Sair
         </Button>

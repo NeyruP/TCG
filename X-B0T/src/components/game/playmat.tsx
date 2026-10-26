@@ -22,6 +22,7 @@ import type { CardInstance, GameState, PlayerState } from "@/lib/game/types";
 
 import { Button } from "@/components/ui/button";
 import { useGame } from "@/store/game-store";
+import { XB } from "@/lib/multiplayer/xb";
 import { cn } from "@/lib/utils";
 import { CardView, MiniPile, type CardStats } from "./card-view";
 import { FxLayer } from "./fx-layer";
@@ -518,17 +519,26 @@ function hintText(
 ): ReactNode {
   if (state.winner != null) return "Fim de partida.";
   if (state.pending) {
-    return state.pending.player === 0 ? "Faça a sua escolha na janela." : "A máquina está decidindo…";
+    return state.pending.player === 0 ? "Faça a sua escolha na janela." : XB.t("A máquina está decidindo…");
   }
-  if (state.active !== 0) return "Vez da máquina — observe as jogadas dela.";
+  if (state.active !== 0) return XB.t("Vez da máquina — observe as jogadas dela.");
   if (!ctx.myTurn) return "Aguarde…";
   if (ctx.targeting && ctx.targetingCard) {
     return ctx.targeting.mode === "ability"
       ? `Clique na unidade que ${ctx.targetingCard.name} vai hackear (Esc cancela).`
       : `Clique num aliado seu para ${ctx.targetingCard.name} (Esc cancela).`;
   }
+  const leaderLocked = state.firstTurnNoAttack && state.turn < 4;
   if (ctx.attacker && ctx.targetCount === 0) {
     const foe = state.players[1];
+    if (leaderLocked) {
+      return (
+        <>
+          <b className="text-amber-200">{ctx.attacker.name}</b> não tem alvo: o líder inimigo só pode ser
+          atacado a partir do turno 4 e não há cartas inimigas em campo.
+        </>
+      );
+    }
     return (
       <>
         <b className="text-amber-200">{ctx.attacker.name}</b> não tem alvo: o ataque dele não supera a
@@ -542,6 +552,11 @@ function hintText(
       <>
         <b className="text-amber-200">{ctx.attacker.name}</b> pronto! O Defensor{" "}
         <b>{guards.map((g) => g.name).join(", ")}</b> precisa ser atacado primeiro.
+      </>
+    ) : leaderLocked ? (
+      <>
+        <b className="text-amber-200">{ctx.attacker.name}</b> pronto! Clique numa carta inimiga — o líder
+        só pode ser atacado a partir do turno 4.
       </>
     ) : (
       <>
@@ -599,18 +614,18 @@ function TopBar({
             mine ? "bg-amber-300/15 text-amber-200" : "bg-red-400/15 text-red-300",
           )}
         >
-          {mine ? "Sua vez" : "Vez da máquina"}
+          {mine ? XB.t("Sua vez") : XB.t("Vez da máquina")}
           <span className="hidden font-normal sm:inline"> · {phaseLabel(state.phase)}</span>
         </span>
-        {!tutorial && !compact && (
+        {!tutorial && !compact && !XB.on() && (
           <span className="hidden text-muted md:inline">Máquina: {skillLabel(skill)}</span>
         )}
       </div>
       <div className="flex items-center gap-3 text-xs text-muted">
-        <span className={compact ? "hidden" : "hidden sm:inline"}>Você</span>
+        <span className={compact ? "hidden" : "hidden sm:inline"}>{XB.t("Você")}</span>
         <ResourcePair life={me.life.length} energy={me.energy} />
         <span className="text-subtle">|</span>
-        <span className={compact ? "hidden" : "hidden sm:inline"}>Máquina</span>
+        <span className={compact ? "hidden" : "hidden sm:inline"}>{XB.t("Máquina")}</span>
         <ResourcePair life={foe.life.length} energy={foe.energy} />
       </div>
     </header>
@@ -765,7 +780,7 @@ function LeaderBox({
         </div>
       ) : (
       <div className="flex flex-col gap-1.5">
-        <p className="text-[10px] tracking-wide text-muted uppercase">{enemy ? "Máquina" : "Você"}</p>
+        <p className="text-[10px] tracking-wide text-muted uppercase">{enemy ? XB.t("Máquina") : XB.t("Você")}</p>
         <div className="flex max-w-[5.5rem] flex-wrap gap-0.5" title={`${lives} vida(s)`}>
           {lives <= 8 ? (
             Array.from({ length: lives }, (_, i) => (

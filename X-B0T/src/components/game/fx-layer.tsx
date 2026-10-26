@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { sfx } from "@/lib/game/audio";
 import type { CardInstance, FxEvent } from "@/lib/game/types";
+import { XB } from "@/lib/multiplayer/xb";
 import { cn } from "@/lib/utils";
 import { useGame } from "@/store/game-store";
 
@@ -87,7 +88,7 @@ export function FxLayer() {
   const [bursts, setBursts] = useState<Burst[]>([]);
   const [ghosts, setGhosts] = useState<Ghost[]>([]);
   const [flash, setFlash] = useState<{ key: number; tone: "hurt" | "hit" } | null>(null);
-  const [banner, setBanner] = useState<{ key: number; mine: boolean } | null>(null);
+  const [banner, setBanner] = useState<{ key: number; mine: boolean; text: string } | null>(null);
   const seen = useRef(0);
   const rects = useRef(new Map<string, Rect>());
 
@@ -222,7 +223,9 @@ export function FxLayer() {
           break;
         case "turn":
           if (state.winner == null) {
-            const b = { key: keySeq++, mine: e.side === 0 };
+            // O texto é fixado agora: no multiplayer a perspectiva da mesa pode trocar durante a faixa.
+            const mine = e.side === 0;
+            const b = { key: keySeq++, mine, text: XB.t(mine ? "Sua vez" : "Vez da máquina") };
             setBanner(b);
             window.setTimeout(() => setBanner((cur) => (cur?.key === b.key ? null : cur)), 1500);
           }
@@ -339,7 +342,7 @@ export function FxLayer() {
               : "bg-black/55 text-red-300 ring-red-400/40",
           )}
         >
-          {banner.mine ? "Sua vez" : "Vez da máquina"}
+          {banner.text}
         </div>
       )}
     </div>

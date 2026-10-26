@@ -1,7 +1,7 @@
 name: Android (X-B0T)
 
 # Gera o X-B0T:
-# - X-B0T-jogo-PC: zip do jogo para computador (abrir JOGAR.html).
+# - X-B0T-jogo-PC: zip do jogo para computador (abrir JOGAR.html; as cartas vão dentro dele).
 # - X-B0T-apk-teste: APK para instalar direto no celular e testar.
 # - X-B0T-play-store-aab: pacote .aab para enviar à Play Store
 #   (assinado quando os secrets ANDROID_* estão configurados — ver X-B0T/play-store/PUBLICAR.md).
@@ -81,7 +81,6 @@ jobs:
             X-B0T/JOGAR.html
             X-B0T/INICIAR.bat
             X-B0T/README.md
-            X-B0T/cards/
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v6
